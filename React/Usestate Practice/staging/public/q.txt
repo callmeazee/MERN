@@ -1,0 +1,209 @@
+General State Management (1-30)
+
+1. Build a show/hide image functionality in React.
+
+2. Create a button that toggles text between "Show" and "Hide".
+
+3. Implement a counter app with increment and decrement buttons.
+
+4. Create a toggle switch for enabling/disabling a feature.
+
+5. Build a simple input field that updates the UI as the user types.
+
+6. Implement a password visibility toggle in an input field.
+
+7. Create a button that disables itself after being clicked once.
+
+8. Build a "Click me" button that tracks the number of times it is clicked.
+
+9. Implement a feature that changes text color when clicking a button.
+
+10. Create a form with a "Submit" button that logs the input value on click.
+
+11. Build a show/hide paragraph functionality.
+
+12. Create a state variable that holds a string and updates when a button is clicked.
+
+13. Implement a function to clear an input field when a button is pressed.
+
+14. Create a text input that limits the number of characters typed.
+
+15. Implement a functionality where clicking a button changes the document title.
+
+16. Create a toggle button to switch between "Light Mode" and "Dark Mode".
+
+17. Build a dropdown that updates the selected value in state.
+
+18. Implement a text area that dynamically adjusts its height based on input.
+
+19. Create a state variable that stores a random number and updates on button click.
+
+20. Implement a live character count display for an input field.
+
+21. Create a feature that updates state every second using setInterval.
+
+22. Build a checkbox that toggles between "Checked" and "Unchecked".
+
+23. Implement a "Like" button that toggles between "Liked" and "Unliked".
+
+24. Create a state that updates when the user presses a key.
+
+25. Implement a text input that converts input to uppercase dynamically.
+
+26. Build a component where state updates only after a button is clicked.
+
+27. Create a state variable that stores the current date and updates it every second.
+
+28. Implement a feature where a button click resets all state values.
+
+29. Build a component that conditionally renders different messages based on state.
+
+30. Create a toggle button that switches between two different components.
+------------------------------------------------------------------------------------
+Object State Management (31-60)
+
+31. Create a user profile state with name and age, and update them via input fields.
+
+32. Implement a form with a state object containing firstName and lastName.
+
+33. Create an object state to store a user's login credentials and update them.
+
+34. Build a color picker that updates an object state with backgroundColor.
+
+35. Implement a state object that stores and updates width and height dynamically.
+
+36. Create a toggle button that switches between two themes stored in an object.
+
+37. Build a form where users can update their email and password in an object state.
+
+38. Implement a profile card that updates a user’s details dynamically.
+
+39. Create an object state that tracks the number of clicks for different buttons.
+
+40. Build a component that switches between two different user profiles stored in state.
+
+41. Implement a feature where an object state tracks the user's scroll position.
+
+42. Create an object state that stores RGB values and updates them on input change.
+
+43. Implement a text input that updates only one field of an object state.
+
+44. Build a form that manages multiple input fields using a single state object.
+
+45. Implement a login form where state tracks email, password, and rememberMe.
+
+46. Create an object state that updates dynamically when a user selects a dropdown option.
+
+47. Build a form that updates user information but retains previously entered data.
+
+48. Implement a state object that changes borderColor and borderWidth dynamically.
+
+49. Create an object state that stores multiple settings and updates only selected values.
+
+50. Build a settings page where users can enable or disable different options dynamically.
+
+51. Implement a state object that tracks the last key pressed by the user.
+
+52. Create a form that validates user input and updates an error message in state.
+
+53. Build a component where state stores name, age, and gender, and updates individually.
+
+54. Implement a state object that tracks the visibility of multiple UI elements.
+
+55. Create a toggle switch where state stores the on/off status of multiple switches.
+
+56. Build a counter app where state tracks multiple counters inside an object.
+
+57. Implement a feature where a user's theme preference is saved in an object state.
+
+58. Create a form that resets only specific fields when a reset button is clicked.
+
+59. Update a specific property inside a deeply nested object.
+
+60. Create input fields dynamically using map() based on an object. Use the object’s keys as the input name attributes and the corresponding values as the input values
+------------------------------------------------------------------------------------------
+
+Array State Management (61-80)
+
+61. Create a state that holds an array of numbers and updates it on button click.
+
+62. Implement a state that stores a list of names and allows adding new names dynamically.
+
+63. Build a dynamic list where users can add and remove items using state.
+
+64. Implement a feature where a list of colors is stored in state and updated dynamically.
+
+65. Create a component where users can add multiple email addresses to a list.
+
+66. Implement a feature where clicking a button reverses an array stored in state.
+
+67. Build a state that holds multiple selected items in a list.
+
+68. Implement a component where users can move an item up or down in an array state.
+
+69. Create a task manager where tasks are stored in an array and updated dynamically.
+
+70. Build a dynamic tags input field where users can add and remove tags.
+
+71. Implement a state that holds an array of user-selected checkboxes.
+
+72. Create a to-do list where items can be added and removed dynamically.
+
+73. Build a feature where an array of strings is filtered dynamically based on input.
+
+74. Implement a component where clicking a button shuffles an array in state.
+
+75. Create a search bar that filters an array of items in real-time.
+
+76. Build a component where users can reorder a list of items using drag-and-drop.
+
+77. Implement a multi-step form where state holds different steps in an array.
+
+78. Create a dropdown menu where state manages multiple selectable options.
+
+79. Build a feature where users can select multiple values from a list dynamically.
+
+80. Implement an undo/redo feature using an array state.
+---------------------------------------------------------------------------------------
+
+Array of Objects State Management (81-100)
+
+81. Create a state that stores an array of user objects and displays them dynamically.
+
+82. Implement a list where each item has an id and name, and can be deleted.
+
+83. Build a shopping cart where state holds an array of products with name and price.
+
+84. Implement a component where state manages a list of users and updates their status.
+
+85. Create a feature where each item in an array of objects has an editable field.
+
+86. Build a dynamic leaderboard where scores are updated inside an array of objects.
+
+87. Implement a chat system where messages are stored in an array of objects.
+
+88. Create a voting system where users can upvote/downvote items in an array of objects.
+
+89. Build a component where users can mark tasks as complete inside an array of objects.
+
+90. Implement pagination for an array of objects stored in state.
+
+91. Create a state where objects are added and removed from an array dynamically.
+
+92. Build a movie list where users can add/remove movies dynamically.
+
+93. Implement a state that updates only one field in an object inside an array.
+
+94. Create a contact list where users can add, edit, and remove contacts.
+
+95. Build a component where users can filter an array of objects dynamically.
+
+96. Implement a feature where each object in an array has a toggleable boolean property.
+
+97. Create a multi-selection list where users can select/deselect objects.
+
+98. Build a component where users can sort an array of objects by different criteria.
+
+99. Implement an array of objects where items are updated based on user interactions.
+
+100. Create a dynamic dashboard where widgets can be added, removed, and reordered.
