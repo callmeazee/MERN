@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom'
 import 'remixicon/fonts/remixicon.css'
 const Dynamic = ()=>{
@@ -12,7 +12,8 @@ const Dynamic = ()=>{
     )
   } 
   catch (error) {
-    return <p>Component not found</p>
+    return <p>Component not found, {error.message}
+    </p>
   }
 }
 
