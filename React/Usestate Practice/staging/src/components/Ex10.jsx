@@ -2,13 +2,26 @@ import { useState } from "react";
 
 
 const Ex10 = () => {
-     const [value, setValue ] = useState('')
-
-     const handleSubmit = (e) => {
-          e.preventDefault()
+     const [form, setForm] = useState({
+          name: '',
+          email: '',
+          password: ''
           
+     })
 
+     const handleChange = (e) => {
+          const input = e.target
+         const  name = input.name
+          const value = input.value
+          setForm({
+               ...form,
+              [ name]: value
+          })
      }
+//      const signup = async(e) => {
+//           e.preventDefault()
+//         await  axios.post("/signup", form)
+//     }
   return (
     <div className="flex  justify-center items-center ">
       <div className="flex flex-col gap-12">
@@ -16,8 +29,9 @@ const Ex10 = () => {
           Create a form with a Submit button that logs the input value on click.
         </h1>
           <form
-               className="flex flex-col gap-8"
-               onSubmit = {handleSubmit}
+                      className="flex flex-col gap-8"
+                    //   onSubmit={signup}
+              
           >
           <label>Name:</label>
           <input
@@ -25,6 +39,7 @@ const Ex10 = () => {
             name="name"
             placeholder="enter your name"
             className="border px-6 py-2.5 rounded-lg "
+            onChange={handleChange}
           />
           <label>Email:</label>
           <input
@@ -32,13 +47,15 @@ const Ex10 = () => {
             name="email"
             placeholder="enter your email"
             className="border px-6 py-2.5 rounded-lg "
+            onChange={handleChange}
           />
           <label>Password: </label>
           <input
             type="text"
             name="password"
             placeholder="enter your password"
-            className="border px-6 py-2.5 rounded-lg "
+            className="border px-6 py-2.5 rounded-lg"
+            onChange={handleChange}
           />
           <button
           type="submit"
@@ -47,7 +64,8 @@ const Ex10 = () => {
           Submit
                
           </button>
-        </form>
+                 </form>
+                 {JSON.stringify(form)}
       </div>
     </div>
   );
