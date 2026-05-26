@@ -1,37 +1,40 @@
+import { useState } from "react";
+
 const Ex34 = () => {
+  const [color, setColor] = useState({
+    background: "#000000",
+  });
+
+
+  const handleChange = (e) => {
+    const input = e.target;
+    const key = input.name;
+    const value = input.value;
+   
+
+    setColor({
+      ...color,
+      [key]: value,
+    });
+  };
   return (
-    <div className="bg-gray-100 min-h-screen grid grid-col-2 p-8 ">
+    <div className="bg-gray-100 min-h-screen grid grid-col-2 p-8 items-center text-center">
       <h1 className="text-2xl font-semibold">
         Build a color picker that updates an object state with backgroundColor.
       </h1>
-      <div>
-        <form className="flex flex-col gap-6 mx-auto w-[400px]">
-          <input
-            type="text"
-            name="firstName"
-            className="bg-white border border-gray-300 p-3 rounded"
-            placeholder="enter your first name"
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            name="lastName"
-            className="bg-white border p-3 rounded"
-            placeholder="enter your last name"
-            onChange={handleChange}
-          />
-          <button className="bg-blue-600 text-white p-3 rounded" type="submit">
-            Submit
-          </button>
-        </form>
+      <div className="mx-auto">
+        <input
+          type="color"
+          name="background"
+          className="bg-white border border-gray-300 p-3 rounded mb-8"
+          placeholder="enter your first name"
+          onChange={handleChange}
+        />
+        <div
+          className="w-[300px] h-[300px] border bg-amber-600"
+          style={{ background: color.background }}></div>
       </div>
-      <div className="bg-white rounded-lg shadow-lg text-center h-fit">
-        {/* <i className="ri-user-line text-8xl"></i>
-    
-        <p></p> */}
-        <h1 className="text-xl font-medium"></h1>
-        <h1 className="text-xl font-medium"></h1>
-      </div>
+
     </div>
   );
 };

@@ -1,4 +1,23 @@
+import { useState } from "react";
+
 const Ex35 = () => {
+  const [box, setBox] = useState({
+    width: '300',
+    height: '200'
+  })
+
+
+  const handleChange = (e) => {
+    const input = e.target
+    const key = input.name
+    const value = input.value
+     
+    setBox({
+      ...box,
+      [key]: Number(value)
+    })
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen grid grid-col-2 p-8 ">
       <h1 className="text-2xl font-semibold">
@@ -6,33 +25,25 @@ const Ex35 = () => {
         dynamically.
       </h1>
       <div>
-        <form className="flex flex-col gap-6 mx-auto w-[400px]">
-          <input
-            type="text"
-            name="firstName"
-            className="bg-white border border-gray-300 p-3 rounded"
-            placeholder="enter your first name"
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            name="lastName"
-            className="bg-white border p-3 rounded"
-            placeholder="enter your last name"
-            onChange={handleChange}
-          />
-          <button className="bg-blue-600 text-white p-3 rounded" type="submit">
-            Submit
-          </button>
-        </form>
+        <input
+          type="number"
+          name="width"
+          className="bg-white border border-gray-300 p-3 rounded"
+          placeholder="enter width"
+          onChange={handleChange}
+        />
+        <input
+          type="number"
+          name="height"
+          className="bg-white border p-3 rounded"
+          placeholder="enter height"
+          onChange={handleChange}
+        />
       </div>
-      <div className="bg-white rounded-lg shadow-lg text-center h-fit">
-        {/* <i className="ri-user-line text-8xl"></i>
-    
-        <p></p> */}
-        <h1 className="text-xl font-medium"></h1>
-        <h1 className="text-xl font-medium"></h1>
-      </div>
+      <div
+        className="w-[300px] h-[300px] border border-amber-800"
+        // style={{ width: box.width + "px", height: box.height + "px" }}
+        style={{ width: box.width , height: box.height }}></div>
     </div>
   );
 };
