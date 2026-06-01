@@ -1,24 +1,25 @@
+import Form from "./component/shared/Form";
+import Input from "./component/shared/Input";
 import Button from "./component/shared/Button";
-// import Card from "./component/shared/Card";
-import Drawer from "./component/shared/Drawer";
+import Card from "./component/shared/Card";
 
-const App = ( ) => {
+const App = () => {
+  const signup = (val) => {
+    console.log(val);
+  };
   return (
-    <div className="p-8 space-y-4">
-      <Button
-        type="danger"
-        onClick={() => alert("hello danger")}
-        // icon={"arrow-up-fill"}
-      >
-        Login
-      </Button>
-      {/* <Card title="card demo">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aliquam illo nostrum ipsam, similique officia quae non doloremque illum perferendis numquam ipsum, exercitationem dolorum aspernatur sapiente corrupti explicabo alias eius perspiciatis?
-      </Card> */}
-       
-      <Drawer title="Regfister" open={open}>
-      
-      </Drawer>
+    <div className="bg-gray-300 flex items-center justify-center h-screen">
+      <div className="w-4/12">
+        <Card title="Register Now">
+          <Form onValue={signup}>
+            <div className="space-y-3">
+              <Input name="username" placeholder="enter username" />
+              <Input name="password" placeholder="******" type="password" />
+              <Button />
+            </div>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -1,10 +1,19 @@
 import "remixicon/fonts/remixicon.css";
+import type { FC } from "react";
 
-const Drawer = ({
+interface DrawerInterface{
+  children?: string
+  title?: string
+  open?: boolean
+  onClose?: ()=> void
+
+}
+
+const Drawer:FC<DrawerInterface> = ({
   children = "Your content goes here",
   title = "Drawer Title",
   open = true,
-  close,
+  onClose,
 }) => {
   return (
     <>
@@ -18,7 +27,7 @@ const Drawer = ({
         <div className="border-b border-gray-100 -mx-8" />
         <div className="text-gray-500">{children}</div>
         <button
-          onClick={close}
+          onClick={onClose}
           className="absolute top-3 right-6 cursor-pointer">
           <i className="ri-close-circle-fill "></i>
         </button>

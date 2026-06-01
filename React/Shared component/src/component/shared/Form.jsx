@@ -1,9 +1,27 @@
+const Form = ({ children, onValue }) => {
+  
+  const getValue = (e) => {
+    e.preventDefault()
+    const form = e.target
+    const inputs = form.getElementsByTagName("input")
+    const formData = {}
+    for (let input of inputs) {
+  
 
-
-const Form = () => {
-  return (
-    <div>Form</div>
-  )
+      const key = input.name 
+      const value = input.value
+      formData[key] = value
+  
+}
+    onValue(formData)
 }
 
-export default Form
+
+  return (
+    <form onSubmit={getValue}>
+    {children}
+    </form>
+  )
+};
+
+export default Form;
