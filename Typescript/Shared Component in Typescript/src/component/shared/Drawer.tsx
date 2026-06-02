@@ -1,15 +1,14 @@
 import "remixicon/fonts/remixicon.css";
 import type { FC } from "react";
 
-interface DrawerInterface{
-  children?: string
-  title?: string
-  open?: boolean
-  onClose?: ()=> void
-
+interface DrawerInterface {
+  children?: string;
+  title?: string;
+  open?: boolean;
+  onClose?: () => void;
 }
 
-const Drawer:FC<DrawerInterface> = ({
+const Drawer: FC<DrawerInterface> = ({
   children = "Your content goes here",
   title = "Drawer Title",
   open = true,
