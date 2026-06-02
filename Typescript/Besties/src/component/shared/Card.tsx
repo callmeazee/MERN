@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 /* import type { FC, ReactElement, ReactNode } from "react";
 
+=======
+import type { FC, ReactElement, ReactNode } from "react";
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
 
 interface CardInterface {
   title?: ReactNode 
   children?: ReactElement
   footer?: ReactElement 
   divider?: boolean
+<<<<<<< HEAD
   noPadding?: boolean
   className?:string
+=======
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
 
 }
 
@@ -15,6 +22,7 @@ const Card: FC<CardInterface> = ({
   title ,
   children ,
   footer,
+<<<<<<< HEAD
   divider = false,
   noPadding = false
   className = ""
@@ -32,6 +40,24 @@ const Card: FC<CardInterface> = ({
       )}
       {divider && <div className="border-b border-gray-100 -mx-5" />}
       {children && <div className="text-gray-500">{children}</div>}
+=======
+  divider=false
+}) => {
+  return (
+    <div className="shadow-lg px-5 py-4 rounded-lg border border-gray-100 space-y-2 bg-white">
+      {
+        title && 
+      <h1 className="text-lg font-semibold capitalize">{title}</h1>
+      }
+      {
+        divider &&
+        <div className="border-b border-gray-100 -mx-5" />
+      }
+      {
+        children && 
+      <div className="text-gray-500">{children}</div>
+      }
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
       {footer && (
         <div className="mt-4">
           <h1>{footer}</h1>

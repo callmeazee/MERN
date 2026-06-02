@@ -1,14 +1,26 @@
+<<<<<<< HEAD
 /* import { Link, Outlet, useLocation } from "react-router-dom";
 
+=======
+import { Link, Outlet, useLocation } from "react-router-dom";
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
 import Avatar from "../shared/Avatar";
 import Card from "../shared/Card";
 import { useState } from "react";
 
 const Layout = () => {
+<<<<<<< HEAD
   const [leftAsideSize, setLeftAsideSize] = useState(350);
   const rightAsideSize = 450;
   const collapseSize = 120;
 
+=======
+
+  const [leftAsideSize, setLeftAsideSize] = useState(350)
+  const rightAsideSize = 450;
+  const collapseSize = 120
+  
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
   const { pathname } = useLocation();
   // const sectionDimension = {
   //   width: `calc(100% - ${leftAsideSize + rightAsideSize}px)`,
@@ -34,12 +46,22 @@ const Layout = () => {
   ];
 
   const getPathName = (path: string) => {
+<<<<<<< HEAD
     const firstPath = path.split("/").pop();
     const secondPath = firstPath?.split("-").join(" ");
     return secondPath;
   };
   return (
     <div className="min-h-screen ">
+=======
+    const firstPath = path.split("/").pop()
+    const secondPath = firstPath?.split("-").join(" ")
+    return secondPath
+    
+  }
+  return (
+    <div className="min-h-screen flex">
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
       <aside
         className=" fixed top-0 left-0 h-full p-6 overflow-auto bg-white/5 backdrop-blur-xl border border-white/10"
         style={{ width: leftAsideSize, transition: "0.2s" }}>
@@ -67,7 +89,11 @@ const Layout = () => {
                 to={item.href}
                 key={idx}
                 className={`flex items-center gap-3 px-3.5 py-2.5   rounded-xl text-[#b8aadf] text-sm font-medium
+<<<<<<< HEAD
                          transition-all duration-150 hover:bg-white/90 hover:text-[#1e1060]`}>
+=======
+              transition-all duration-150 hover:bg-white/90 hover:text-[#1e1060]`}>
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
                 <i className={`${item.icon} text-xl`}></i>
                 <span
                   className={`capitalize ${leftAsideSize === collapseSize ? "hidden " : ""}`}>
@@ -93,7 +119,11 @@ const Layout = () => {
       </aside>
 
       <section
+<<<<<<< HEAD
         className="rounded-2xl py-8 px-1 "
+=======
+        className="rounded-2xl py-8 px-1"
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
         style={{
           width: `calc(100% - ${leftAsideSize + rightAsideSize}px)`,
           marginLeft: leftAsideSize,
@@ -115,7 +145,10 @@ const Layout = () => {
           <Outlet />
         </Card>
       </section>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
       <aside
         className="bg-white fixed top-0 right-0 h-full p-8 overflow-auto "
         style={{ width: rightAsideSize }}>
@@ -159,6 +192,7 @@ const Layout = () => {
 };
 
 export default Layout;
+<<<<<<< HEAD
  */
 
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -389,3 +423,5 @@ const Layout = () => {
 };
 
 export default Layout;
+=======
+>>>>>>> 5bd81a0147ea49d7eec167c715d487e64a47739c
