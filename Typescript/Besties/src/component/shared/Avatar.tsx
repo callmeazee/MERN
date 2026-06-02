@@ -20,11 +20,29 @@ const Avatar: FC<avatarInterface> = (
   return (
     <div className="flex gap-3 items-center">
       {image && (
-        <img src={image} className={`${size=== "lg" ? "w-12 h-12" : "w-8 h-8"} rounded-full border-2 border-white/60 object-cover`} />
+        <img
+          src={image}
+          className={`${
+            size === "lg"
+              ? "w-12 h-12"
+              : "w-8 h-8 "
+          }
+            rounded-full
+            border-2
+            border-white/60
+            object-cover
+            shrink-0`}
+        />
       )}
       {title && subtitle && (
         <div className="flex flex-col">
-          <h1 className={`${size==="lg" ? "text-lg/6" :  "text-sm"} font-medium capitalize` }style={{ color: titleColor }}>
+          <h1
+            className={`$ ${
+              size === "lg" ? "text-lg/6" : "text-sm"
+            }
+            font-medium
+            capitalize`}
+            style={{ color: titleColor }}>
             {title}
           </h1>
           <div className="text-sm capitalize" style={{ color: subtitleColor }}>

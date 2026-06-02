@@ -6,6 +6,9 @@ import Layout from "./component/app/Layout";
 import Post from "./component/app/Post";
 import Friends from "./component/app/Friends";
 import Dashboard from "./component/app/Dashboard";
+import Video from "./component/app/Video";
+import Audio from "./component/app/Audio";
+import Chat from "./component/app/Chat";
 
 
 
@@ -20,7 +23,10 @@ const App = () => {
         <Route path="/app" element={<Layout />} >
         <Route path="dashboard" element= {<Dashboard/>} />
         <Route path="posts" element= {<Post/>} />
-        <Route path="friends" element= {<Friends/>} />
+          <Route path="friends" element={<Friends />} />
+          <Route path="video" element= {<Video/>} />
+          <Route path="audio" element= {<Audio/>} />
+          <Route path="chat" element= {<Chat/>} />
         </Route>
     </Routes>
     </BrowserRouter>
