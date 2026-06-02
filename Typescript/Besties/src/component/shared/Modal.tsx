@@ -4,10 +4,10 @@ import "remixicon/fonts/remixicon.css";
 import "animate.css";
 
 interface ModelInterface {
-  open?: boolean
-  onClose?: ()=> void
-  title?: string 
-  children?: string
+  open?: boolean;
+  onClose?: () => void;
+  title?: string;
+  children?: string;
 }
 
 const Modal: FC<ModelInterface> = ({
@@ -24,7 +24,7 @@ const Modal: FC<ModelInterface> = ({
           style={{
             background: `rgba(0,0,0, 0.65)`,
           }}>
-          <div className="bg-white border border-gray-100 shadow-xl px-5 py-4 rounded-lg w-[480] relative animate__animated animate__pulse ">
+          <div className="bg-white border border-gray-100 shadow-xl px-5 py-4 rounded-lg w-120 md:w-120  relative animate__animated animate__pulse ">
             <h1 className="text-lg font-semibold">{title}</h1>
             <div className="text-gray-500">{children}</div>
             <button
