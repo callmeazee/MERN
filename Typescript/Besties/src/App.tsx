@@ -10,6 +10,7 @@ import Dashboard from "./component/app/Dashboard";
 import Video from "./component/app/Video";
 import Audio from "./component/app/Audio";
 import Chat from "./component/app/Chat";
+import NotFound from "./component/shared/NotFound";
 
 
 
@@ -30,9 +31,10 @@ const App = () => {
           <Route path="video" element= {<Video/>} />
           <Route path="audio" element= {<Audio/>} />
           <Route path="chat" element= {<Chat/>} />
-        <Route path="friends" element= {<Friends/>} />
+          <Route path="friends" element= {<Friends/>} />
 
         </Route>
+          <Route path="*" element= {<NotFound/>} />
     </Routes>
     </BrowserRouter>
   </div>;

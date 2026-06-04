@@ -4,7 +4,8 @@ import type { FC } from "react";
 interface InputInterface{
   name: string
   placeholder?: string
-  type? : string
+  type?: string
+  
 }
 
 const Input: FC<InputInterface> = ({

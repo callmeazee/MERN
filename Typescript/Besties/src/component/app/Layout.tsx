@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import Avatar from "../shared/Avatar";
 import Card from "../shared/Card";
 import { useState } from "react";
+import type { CSSProperties} from 'react'
 
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350);
@@ -120,7 +121,7 @@ const Layout = () => {
             // Real-time CSS calc values targeting desktop boundaries natively
             "--main-ml": `calc(0px + ${leftAsideSize}px)`,
             "--main-mr": `calc(0px + ${rightAsideSize}px)`,
-          } as React.CSSProperties
+          } as CSSProperties
         }>
         <Card
           title={
@@ -149,65 +150,113 @@ const Layout = () => {
       {/* RIGHT FRIENDS DRAWER */}
       {/* Mobile: Bottom linear stack | Desktop: Hard-locked right edge panel using safe width specifications */}
       <aside
-        className="bg-white p-4 lg:p-8 overflow-auto border-t lg:border-t-0 lg:border-l border-gray-100
-                   w-full lg:fixed lg:top-0 lg:right-0 lg:h-full"
+        className="p-4 lg:p-6 overflow-auto border-t lg:border-t-0 lg:border-l border-gray-100 w-full lg:fixed lg:top-0 lg:right-0 lg:h-full z-40"
         style={
           {
             width: "100%",
             maxWidth: "var(--right-max-w, 100%)",
-            "--right-max-w": `calc(0px + ${rightAsideSize}px)`, // Enforces hard structural limits cleanly on zoom
+            "--right-max-w": `calc(0px + ${rightAsideSize}px)`,
           } as React.CSSProperties
         }>
-        <Card title="my friends" divider>
-          <div className="space-y-4 max-h-125 lg:max-h-none overflow-y-auto pr-1">
-            {Array(20)
-              .fill(0)
-              .map((_, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 bg-gray-50 rounded-xl flex items-center justify-between hover:bg-gray-100/70 transition-colors">
-                  <Avatar
-                    size="md"
-                    image="/images/man1.png"
-                    title="John adams"
-                    subtitle={
-                      <small
-                        className={
-                          idx % 2 === 0
-                            ? "text-green-500 font-medium"
-                            : "text-zinc-400"
-                        }>
-                        {idx % 2 === 0 ? "• Online" : "Offline"}
-                      </small>
-                    }
-                  />
+        <Card className="h-full" noPadding>
+          <div className="flex flex-col h-full divide-y divide-gray-100">
+            {/* 1. SUGGESTED FRIENDS SECTION (TOP) */}
+            <div className="p-4 shrink-0">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                  Suggested Friends
+                </h2>
+                <button className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer">
+                  See All
+                </button>
+              </div>
 
-                  {/* Action Row Fixed Order: Message -> Audio -> Video */}
-                  <div className="flex items-center gap-3">
-                    <Link to="/app/chat">
-                      <button
-                        className="p-1 cursor-pointer transition-transform hover:scale-110"
-                        title="chat">
-                        <i className="ri-chat-3-line text-xl text-blue-500 hover:text-blue-600"></i>
+              {/* Horizontal Scrollable Row for Suggestions */}
+              <div className="flex gap-3 overflow-x-auto pb-2 pt-1 scrollbar-hide snap-x">
+                {Array(15)
+                  .fill(0)
+                  .map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col items-center justify-center text-center min-w-27.5 snap-start hover:shadow-sm transition-shadow">
+                      {/* Compact Avatar Fallback */}
+                      <div className="w-12 h-12 rounded-full bg-linear-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm mb-2 shadow-sm">
+                        SF
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-700 truncate w-full max-w-22.5">
+                        Alex Rivera
+                      </h4>
+                      <p className="text-[10px] text-slate-400 mb-2 truncate w-full max-w-22.5">
+                        Mutual Friend
+                      </p>
+                      {/* Quick Add Button */}
+                      <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg transition-colors w-full cursor-pointer flex items-center justify-center gap-1">
+                        <i className="ri-user-add-line"></i> Add
                       </button>
-                    </Link>
-                    <Link to="/app/audio">
-                      <button
-                        className="p-1 cursor-pointer transition-transform hover:scale-110"
-                        title="audio call">
-                        <i className="ri-phone-line text-xl text-indigo-500 hover:text-indigo-600"></i>
-                      </button>
-                    </Link>
-                    <Link to="/app/video">
-                      <button
-                        className="p-1 cursor-pointer transition-transform hover:scale-110"
-                        title="video call">
-                        <i className="ri-video-on-line text-xl text-emerald-500 hover:text-emerald-600"></i>
-                      </button>
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* 2. MY FRIENDS LIST SECTION (BOTTOM) */}
+            {/* flex-1 min-h-0 and flex flex-col allows the main list to take up all remaining height perfectly */}
+            <div className="flex-1 min-h-0 flex flex-col p-4">
+              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 shrink-0">
+                My Friends
+              </h2>
+
+              {/* Scrollable list frame */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                {Array(20)
+                  .fill(0)
+                  .map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 bg-gray-50 rounded-xl flex items-center justify-between hover:bg-gray-100/70 transition-colors">
+                      <Avatar
+                        size="md"
+                        image="/images/man1.png"
+                        title="John adams"
+                        subtitle={
+                          <small
+                            className={
+                              idx % 2 === 0
+                                ? "text-green-500 font-medium"
+                                : "text-zinc-400"
+                            }>
+                            {idx % 2 === 0 ? "• Online" : "Offline"}
+                          </small>
+                        }
+                      />
+
+                      {/* Action Row Fixed Order: Message -> Audio -> Video */}
+                      <div className="flex items-center gap-3">
+                        <Link to="/app/chat">
+                          <button
+                            className="p-1 cursor-pointer transition-transform hover:scale-110"
+                            title="chat">
+                            <i className="ri-chat-3-line text-xl text-blue-500 hover:text-blue-600"></i>
+                          </button>
+                        </Link>
+                        <Link to="/app/audio">
+                          <button
+                            className="p-1 cursor-pointer transition-transform hover:scale-110"
+                            title="audio call">
+                            <i className="ri-phone-line text-xl text-indigo-500 hover:text-indigo-600"></i>
+                          </button>
+                        </Link>
+                        <Link to="/app/video">
+                          <button
+                            className="p-1 cursor-pointer transition-transform hover:scale-110"
+                            title="video call">
+                            <i className="ri-video-on-line text-xl text-emerald-500 hover:text-emerald-600"></i>
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
           </div>
         </Card>
       </aside>

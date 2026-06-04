@@ -1,107 +1,65 @@
-/*
-import Button from "../shared/Button";
-    const Video = () => {
-  return (
-    <div className="space-y-8">
-      <div className="bg-black w-full h-0 relative pb-[56.25%] rounded-xl shadow-inner overflow-hidden">
-        <video className="w-full h-full absolute top-0 left-0 object-cover"></video>
-
-        <button className="absolute bottom-4 right-4 text-xs px-2.5 py-1 rounded-lg text-white bg-black/40 backdrop-blur-md">
-          Rahul Kumar
-        </button>
-
-        <button className="absolute bottom-4 left-4 text-xs px-2.5 py-1 rounded-lg text-white transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 bg-white/30">
-          <i className="ri-fullscreen-exit-line"></i>
-        </button>
-      </div>
-
-      <div
-        // className="grid grid-cols-3 gap-4"
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="bg-black w-full h-0 relative pb-[56.25%] rounded-xl overflow-hidden shadow">
-          <video className="w-full h-full absolute top-0 left-0 object-cover"></video>
-          <button className="absolute bottom-2 right-2 text-xs px-2.5 py-1 rounded-lg text-white bg-white/30 ">
-            Rahul Kumar
-          </button>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center">
-        <div className="space-x-4">
-          <button className="bg-green-500 text-white w-12 h-12 rounded-full hover:bg-green-400 hover:text-white">
-            <i className="ri-video-on-ai-line"></i>
-          </button>
-
-          <button className="bg-amber-500 text-white w-12 h-12 rounded-full hover:bg-amber-400 hover:text-white">
-            <i className="ri-mic-line"></i>
-          </button>
-
-          <button className="bg-green-500 text-white w-12 h-12 rounded-full hover:bg-green-400 hover:text-white">
-            <i className="ri-mic-line"></i>
-          </button>
-        </div>
-        <Button icon="close-circle-fill" type="danger">
-          End
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-export default Video */
-
 import Button from "../shared/Button";
 
 const Video = () => {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* MAIN VIDEO TRACK CONTAINER */}
-      <div className="bg-black w-full h-0 relative pb-[56.25%] rounded-xl shadow-inner overflow-hidden">
+      {/* Added 'isolate' to ensure the video rendering plane respects overflow-hidden rounded borders */}
+      <div className="bg-black w-full h-0 relative pb-[56.25%] rounded-xl shadow-inner overflow-hidden isolate">
         <video className="w-full h-full absolute top-0 left-0 object-cover"></video>
 
-        {/* Username Label */}
-        <button className="absolute bottom-4 left-4 text-xs px-2.5 py-1 rounded-lg text-white bg-black/40 backdrop-blur-md">
+        {/* Username Label - Pinned Left */}
+        <button className="absolute bottom-4 left-4 text-xs px-2.5 py-1 rounded-lg text-white bg-black/40 backdrop-blur-md z-10">
           Rahul Kumar (You)
         </button>
 
-        {/* Controls Overlay */}
-        <button className="absolute bottom-4 right-4 text-xs p-2 rounded-lg text-white transition-all duration-200 hover:bg-white/20 bg-black/40 backdrop-blur-md active:scale-95">
+        {/* Controls Overlay - Pinned Right */}
+        <button className="absolute bottom-4 right-4 text-xs p-2 rounded-lg text-white transition-all duration-200 hover:bg-white/20 bg-black/40 backdrop-blur-md active:scale-95 z-10">
           <i className="ri-fullscreen-line text-sm"></i>
         </button>
       </div>
 
       {/* SECONDARY PARTICIPANTS GRID */}
-      {/* Mobile: 1 column | Desktop: 3 columns */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {/* Participant Item 1 */}
-        <div className="bg-black w-full h-0 relative pb-[56.25%] rounded-xl overflow-hidden shadow">
+        <div className="bg-black w-full h-0 relative pb-[56.25%] rounded-xl overflow-hidden shadow isolate">
           <video className="w-full h-full absolute top-0 left-0 object-cover"></video>
-          <button className="absolute bottom-2 right-2 text-[10px] px-2 py-0.5 rounded-md text-white bg-black/50 backdrop-blur-sm">
+          {/* FIX: Aligned name tag to bottom-left to match the layout consistency of the main screen */}
+          <button className="absolute bottom-2 left-2 text-[10px] px-2 py-0.5 rounded-md text-white bg-black/50 backdrop-blur-sm z-10">
             Rahul Kumar
           </button>
         </div>
 
         {/* Participant Item 2 Placeholder */}
-        <div className="bg-zinc-800 w-full h-0 relative pb-[56.25%] rounded-xl overflow-hidden flex items-center justify-center">
-          <div className="absolute inset-0 flex items-center justify-center text-zinc-400 text-xs">
-            <span>Camera Off</span>
+        {/* FIX: Removed flex from parent grid block because height is 0 */}
+        <div className="bg-zinc-900 w-full h-0 relative pb-[56.25%] rounded-xl overflow-hidden shadow">
+          {/* FIX: Moved flex rules to the absolute container so alignment elements calculate true centers correctly */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 gap-1.5 bg-zinc-900">
+            <i className="ri-vidicon-off-line text-lg opacity-80"></i>
+            <span className="text-[11px] font-medium tracking-wide">
+              Azee Khan
+            </span>
           </div>
         </div>
 
         {/* Participant Item 3 Placeholder */}
-        <div className="bg-zinc-800 w-full h-0 relative pb-[56.25%] rounded-xl overflow-hidden flex items-center justify-center">
-          <div className="absolute inset-0 flex items-center justify-center text-zinc-400 text-xs">
-            <span>Camera Off</span>
+        <div className="bg-zinc-900 w-full h-0 relative pb-[56.25%] rounded-xl overflow-hidden shadow">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 gap-1.5 bg-zinc-900">
+            <i className="ri-vidicon-off-line text-lg opacity-80"></i>
+            <span className="text-[11px] font-medium tracking-wide">
+              John Adams
+            </span>
           </div>
         </div>
       </div>
 
       {/* BOTTOM CONTROL MEDIA ACTION ROW */}
-      {/* Mobile: Wraps to layout naturally | Desktop: Spread row split */}
-      <div className="flex flex-col gap-4 sm:flex-row justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-        {/* Toggle Panel Buttons */}
-        <div className="flex items-center gap-3">
-          {/* Camera Button */}
+      {/* FIX: Using items-center and justify-center/justify-between with explicit mobile padding balances the row layout items */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm w-full">
+        {/* Toggle Panel Buttons Row */}
+        {/* FIX: Explicitly keeping these centered on mobile viewports */}
+        <div className="flex items-center justify-center gap-3 w-auto">
+          {/* Camera Button (Only in Video.tsx - remove this button line if pasting into Audio.tsx) */}
           <button className="bg-emerald-500 text-white w-12 h-12 rounded-full hover:bg-emerald-600 transition-colors flex items-center justify-center cursor-pointer active:scale-95 shadow-md shadow-emerald-100">
             <i className="ri-vidicon-line text-xl"></i>
           </button>
@@ -111,18 +69,19 @@ const Video = () => {
             <i className="ri-mic-line text-xl"></i>
           </button>
 
-          {/* Screen Share Button */}
+          {/* Screen Share / Extra Button (Only in Video.tsx - remove if pasting into Audio.tsx) */}
           <button className="bg-blue-500 text-white w-12 h-12 rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center cursor-pointer active:scale-95 shadow-md shadow-blue-100">
             <i className="ri-computer-line text-xl"></i>
           </button>
         </div>
 
-        {/* End Call Action Button */}
-        <div className="w-full sm:w-auto">
+        {/* End Call Action Button Wrapper Container */}
+        {/* FIX: Forced the wrapper to take full width on mobile so the shared Button stretches edge-to-edge layout paths cleanly */}
+        <div className="w-full sm:w-auto flex justify-center">
           <Button
             icon="close-circle-fill"
             type="danger"
-          >
+            className="w-full sm:w-auto justify-center py-3 text-center flex items-center">
             End Call
           </Button>
         </div>

@@ -1,60 +1,4 @@
-/* import Button from "../shared/Button";
 
-import Card from "../shared/Card";
-
-const Audio = () => {
-  return (
-    <div className="space-y-6 md:space-y-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <Card title="Azee khan">
-          <div className="flex flex-col items-center">
-            <img
-              src=""
-              alt="avatar"
-              className="w-40 h-40 rounded-full object-cover"
-            />
-          </div>
-        </Card>
-        <Card title="Azee khan">
-          <div className="flex flex-col items-center">
-            <img
-              src=""
-              alt="avatar"
-              className="w-40 h-40 rounded-full object-cover"
-            />
-          </div>
-        </Card>
-      </div>
-
-    
- 
-      <div className="flex flex-col gap-4 sm:flex-row justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-       
-        <div className="flex items-center gap-3">
-       
-         
-
-       
-          <button className="bg-amber-500 text-white w-12 h-12 rounded-full hover:bg-amber-600 transition-colors flex items-center justify-center cursor-pointer active:scale-95 shadow-md shadow-amber-100">
-            <i className="ri-mic-line text-xl"></i>
-          </button>
-
-       
-    
-        </div>
-
-    
-        <div className="w-full sm:w-auto">
-          <Button icon="close-circle-fill" type="danger">
-            End Call
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Audio; */
 
 import Button from "../shared/Button";
 import Card from "../shared/Card";
@@ -151,7 +95,7 @@ const Audio = () => {
           <Button
             icon="close-circle-fill"
             type="danger"
-            >
+            className="w-full sm:w-auto justify-center py-3 text-center flex items-center">
             End Call
           </Button>
         </div>

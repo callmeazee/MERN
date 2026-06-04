@@ -260,7 +260,7 @@ const Chat = () => {
           {/* Submitting Message Button */}
           <button
             type="submit"
-            className="bg-indigo-600 text-white h-11 w-11 rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 active:scale-95 cursor-pointer flex-shrink-0">
+            className="bg-indigo-600 text-white h-11 w-11 rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 active:scale-95 cursor-pointer shrink-0">
             <i className="ri-send-plane-2-fill text-lg ml-0.5"></i>
           </button>
         </form>
