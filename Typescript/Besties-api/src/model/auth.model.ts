@@ -11,12 +11,14 @@ const authSchema = new Schema({
      email: {
           type: String,
           required: true,
-          trim:true
+          trim: true,
+          unique: true
      },
      mobile: {
           type: String,
           required: true,
-          trim:true
+          trim: true,
+          unique: true
      },
      password: {
           type: String,
