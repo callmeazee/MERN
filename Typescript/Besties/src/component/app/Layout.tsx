@@ -1,10 +1,10 @@
-
-
 import { Link, Outlet, useLocation } from "react-router-dom";
 import Avatar from "../shared/Avatar";
 import Card from "../shared/Card";
-import { useState } from "react";
-import type { CSSProperties} from 'react'
+import { useContext, useState } from "react";
+import type { CSSProperties } from "react";
+import Context from "../../Context";
+import HttpInterceptor from "../../lib/HttpInterceptor";
 
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350);
@@ -12,6 +12,8 @@ const Layout = () => {
   const collapseSize = 130;
 
   const { pathname } = useLocation();
+
+  const { session } = useContext(Context);
 
   const menus = [
     {
@@ -35,6 +37,35 @@ const Layout = () => {
     const firstPath = path.split("/").pop();
     const secondPath = firstPath?.split("-").join(" ");
     return secondPath;
+  };
+
+  const uploadImage = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.click();
+    input.onchange = async () => {
+      if (!input.files) return;
+
+      const file = input.files[0];
+
+      const payload = {
+        path: "demo/hello.png",
+        type: file.type,
+      };
+
+      try {
+        const options = {
+          headers: {
+            "Content-Type": file.type,
+          },
+        };
+        const { data } = await HttpInterceptor.post("/storage/upload", payload);
+        await HttpInterceptor.put(data.url, file, options);
+      } catch (err) {
+        console.log(err);
+      }
+    };
   };
 
   return (
@@ -62,14 +93,17 @@ const Layout = () => {
           }}>
           {/* User Profile */}
           <div className="hidden lg:block animate__animated animate__fadeIn">
-            <Avatar
-              title={leftAsideSize === collapseSize ? null : "Jammie wilson"}
-              size={leftAsideSize === collapseSize ? "md" : "lg"}
-              subtitle="full stack developer"
-              titleColor="white"
-              subtitleColor="#ddd"
-              image="/images/woman.png"
-            />
+            {session && (
+              <Avatar
+                title={leftAsideSize === collapseSize ? null : session.fullname}
+                size={leftAsideSize === collapseSize ? "md" : "lg"}
+                subtitle={session.email}
+                titleColor="white"
+                subtitleColor="#ddd"
+                image="/images/woman.png"
+                onClick={uploadImage}
+              />
+            )}
           </div>
 
           <div className="hidden lg:block border-b border-white/10 pt-2 mt-5 -mx-4" />
@@ -277,4 +311,3 @@ const Layout = () => {
 };
 
 export default Layout;
-

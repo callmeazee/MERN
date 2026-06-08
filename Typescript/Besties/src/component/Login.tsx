@@ -2,9 +2,21 @@ import Card from "./shared/Card";
 import Input from "./shared/Input";
 import Button from "./shared/Button";
 import IconButton from "./shared/IconButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Form, { type FormDataType } from "./shared/Form";
+import HttpInterceptor from "../lib/HttpInterceptor";
+import CatchError from "../lib/CatchError";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const handleLogin = async (values: FormDataType) => {
+    try {
+      await HttpInterceptor.post("/auth/login", values);
+      navigate("/app");
+    } catch (err: unknown) {
+      CatchError(err);
+    }
+  };
   return (
     // Centered outer canvas block wrapper layout
     <div className="bg-slate-50 flex items-center justify-center min-h-screen px-4 py-8">
@@ -58,20 +70,18 @@ const Login = () => {
               </div>
 
               {/* Form Submission Execution Engine */}
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <Form className="space-y-4" onValue={handleLogin}>
                 <div className="space-y-3.5">
                   <Input
                     name="email"
                     placeholder="name@example.com"
                     type="email"
-     
                   />
                   <div className="space-y-1">
                     <Input
                       name="password"
                       placeholder="Enter security password"
                       type="password"
-                 
                     />
                     {/* Forgot Password Link Helper */}
                     <div className="flex justify-end px-1">
@@ -96,7 +106,7 @@ const Login = () => {
                     Initialize Login
                   </Button>
                 </div>
-              </form>
+              </Form>
 
               {/* Third-Party OAuth Sign-In Split */}
               <div className="relative my-6 flex items-center justify-center">

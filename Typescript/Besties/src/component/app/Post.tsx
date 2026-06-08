@@ -1,7 +1,7 @@
 import Button from "../shared/Button";
 import Card from "../shared/Card";
-import Divider from "../shared/divider";
- // Capitalized import to match design conventions
+import Divider from "../shared/Divider";
+// Capitalized import to match design conventions
 import IconButton from "../shared/IconButton";
 
 const Post = () => {

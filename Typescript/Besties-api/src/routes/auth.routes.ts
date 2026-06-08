@@ -1,10 +1,11 @@
-import { login, signup } from "../controller/auth.controller";
+import { getSession, login, signup } from "../controller/auth.controller";
 
 const { Router } = require("express");
 
-const authRouter = Router()
+const AuthRouter = Router()
 
-authRouter.post("/signup", signup)
-authRouter.post("/login", login)
+AuthRouter.post("/signup", signup)
+AuthRouter.post("/login", login)
+AuthRouter.get("/session", getSession)
 
-export default authRouter
+export default AuthRouter

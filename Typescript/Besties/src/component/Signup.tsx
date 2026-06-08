@@ -2,20 +2,22 @@
 import Card from "./shared/Card";
 import Input from "./shared/Input";
 import Button from "./shared/Button"; // Imported your global button primitive
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Form, { type FormDataType } from "./shared/Form";
+import HttpInterceptor from "../lib/HttpInterceptor";
+import CatchError from "../lib/CatchError";
 
 const Signup = () => {
-  // const [formData, setFormData] = useState({
-  //   fullname: "",
-  //   email: "",
-  //   mobile: "",
-  //   password: "",
-  // });
+  const navigate = useNavigate();
 
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   alert("Signup handle action payload compiled successfully!");
-  // };
+  const handleSignup = async (values: FormDataType) => {
+    try {
+      await HttpInterceptor.post("/auth/signup", values);
+      navigate("/login");
+    } catch (err: unknown) {
+      CatchError(err);
+    }
+  };
 
   return (
     // Centered outer canvas block wrapper layout
@@ -39,7 +41,7 @@ const Signup = () => {
               </div>
 
               {/* Form Submission Execution Engine */}
-              <form className="space-y-4">
+              <Form className="space-y-4" onValue={handleSignup}>
                 <div className="space-y-3.5">
                   <Input name="fullname" placeholder="Enter your full name" />
                   <Input
@@ -64,7 +66,7 @@ const Signup = () => {
                     Register Account
                   </Button>
                 </div>
-              </form>
+              </Form>
 
               {/* Auxiliary Redirect Anchor Link Footer */}
               <p className="text-xs text-center text-slate-400 font-medium mt-6">

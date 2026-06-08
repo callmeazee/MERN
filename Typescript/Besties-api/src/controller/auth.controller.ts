@@ -3,6 +3,8 @@ import AuthModel from '../model/auth.model'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
+import { CatchError, TryError} from '../utils/error'
+
 
 const accessTokenExpiry = '15m'
 
@@ -12,6 +14,8 @@ interface PayloadInterface{
      email: string 
      mobile: string 
 }
+
+
 
 const generateToken = (payload: PayloadInterface) => {
      const accessToken = jwt.sign(payload, process.env.AUTH_SECRET!, { expiresIn: accessTokenExpiry })
@@ -24,12 +28,22 @@ const generateToken = (payload: PayloadInterface) => {
 
 export const signup = async(req: Request, res: Response) => {
      try {
-        await  AuthModel.create(req.body) 
-          res.status(200).json("signup success")
+          await AuthModel.create(req.body)
+          res.json("signup success")
           
-     } catch (err:any) {
-     res.status(500).json({message:err.message})
+     } catch (err: unknown) {
+          //we have centralized this code and put it under error.ts
+          //      if (err instanceof Error)
+          //      {
+          //           const status = (err as ErrorMessage).status || 500
+          //           res.status(status).json({message:err.message})
+          //      }
+          // }
+          
+
+          CatchError(err, res)
      }
+     
   
      
 }
@@ -45,11 +59,14 @@ export const login = async(req: Request, res: Response) => {
           // AuthModel.findOne({ email })
 
           if (!user)
-               throw new Error("User not found, please Sign up first ")
+          
+           throw     TryError("User not found, please Sign up first" , 404)
+          
+               
           const isLogin = await bcrypt.compare(password, user.password)
           
           if (!isLogin)
-               throw new Error("invalid credential, email or password is inscorrect")
+        throw TryError("invalid credential, email or password is inscorrect", 401)
           
 
           const payload = {
@@ -61,16 +78,33 @@ export const login = async(req: Request, res: Response) => {
 
           const options = {
                httpOnly: true,
-               maxAge:(60 * 15)
+               maxAge: (60 * 15) * 1000,
+               secure: false,
+               domain: 'localhost'
           }
           
           const accessToken = generateToken(payload)
           
-          res.cookie("accesstoken", accessToken, options)
+          res.cookie("accessToken", accessToken, options)
           res.json({ message: "Login success" })
           
-     } catch (err: any ) {
-        res.status(500).json({message:err.message})
+     } catch (err: unknown) {
+          CatchError(err, res, "Login failed, please try after sometime")
      }
      
+
+}
+
+
+export const getSession = async(req: Request, res:Response) => {
+     try {
+          const accessToken = req.cookies.accessToken
+          if (!accessToken)
+               throw TryError("Invalid session", 401)
+          const session = await jwt.verify(accessToken, process.env.AUTH_SECRET!)
+          res.json(session)
+          
+     } catch (err) {
+          CatchError(err, res, "Invalid session")
+     }
 }

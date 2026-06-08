@@ -6,40 +6,39 @@ interface avatarInterface {
   image?: string;
   titleColor?: string;
   subtitleColor?: string;
-  size?: "lg" | "md"
+  size?: "lg" | "md";
+  key?: string | number;
+  onClick?: () => void;
 }
 
-const Avatar: FC<avatarInterface> = (
-{  image,
+const Avatar: FC<avatarInterface> = ({
+  image,
   title,
   subtitle = "subtitle is missing",
   titleColor,
-  size="lg",
-  subtitleColor}
-) => {
+  size = "lg",
+  subtitleColor,
+  key,
+  onClick,
+}) => {
   return (
-    <div className="flex gap-3 items-center">
+    <div className="flex gap-3 items-center" key={key}>
       {image && (
         <img
           src={image}
-          className={`${
-            size === "lg"
-              ? "w-12 h-12"
-              : "w-8 h-8 "
-          }
+          className={`${size === "lg" ? "w-12 h-12" : "w-8 h-8 "}
             rounded-full
             border-2
             border-white/60
             object-cover
             shrink-0`}
+          onClick={onClick}
         />
       )}
       {title && subtitle && (
         <div className="flex flex-col">
           <h1
-            className={`$ ${
-              size === "lg" ? "text-lg/6" : "text-sm"
-            }
+            className={`$ ${size === "lg" ? "text-lg/6" : "text-sm"}
             font-medium
             capitalize`}
             style={{ color: titleColor }}>

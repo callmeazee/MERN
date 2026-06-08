@@ -11,33 +11,38 @@ import Video from "./component/app/Video";
 import Audio from "./component/app/Audio";
 import Chat from "./component/app/Chat";
 import NotFound from "./component/shared/NotFound";
-
-
-
-
+import { ToastContainer } from "react-toastify";
+import Context from "./Context";
+import { useState } from "react";
+import Guard from "./Guard";
 
 const App = () => {
-  return <div>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element= {<Home/> }/>
-        <Route path="/login" element= {<Login/>} />
-        <Route path="/signup" element= {<Signup/>} />
-        <Route path="/app" element={<Layout />} >
-        <Route path="dashboard" element= {<Dashboard/>} />
-        <Route path="posts" element= {<Post/>} />
+  const [session, setSession] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  return (
+    <Context.Provider value={{ session, setSession }}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route element={<Guard />}>
+            <Route path="/app" element={<Layout />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="posts" element={<Post />} />
 
-          <Route path="friends" element={<Friends />} />
-          <Route path="video" element= {<Video/>} />
-          <Route path="audio" element= {<Audio/>} />
-          <Route path="chat" element= {<Chat/>} />
-          <Route path="friends" element= {<Friends/>} />
-
-        </Route>
-          <Route path="*" element= {<NotFound/>} />
-    </Routes>
-    </BrowserRouter>
-  </div>;
+              <Route path="friends" element={<Friends />} />
+              <Route path="video" element={<Video />} />
+              <Route path="audio" element={<Audio />} />
+              <Route path="chat" element={<Chat />} />
+              <Route path="friends" element={<Friends />} />
+            </Route>
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <ToastContainer />
+      </BrowserRouter>
+    </Context.Provider>
+  );
 };
 
 export default App;
