@@ -1,5 +1,3 @@
-
-
 import type { FC, ReactNode } from "react";
 
 interface CardInterface {
@@ -9,7 +7,7 @@ interface CardInterface {
   divider?: boolean;
   noPadding?: boolean; // NEW: Flag to control internal body layout bleed
   className?: string;
-  key?: string | number
+  // key?: string | number;
 }
 
 const Card: FC<CardInterface> = ({
@@ -19,13 +17,13 @@ const Card: FC<CardInterface> = ({
   divider = false,
   noPadding = false, // Defaults to standard padding behavior
   className = "",
-  key=0
+  // key = 0,
 }) => {
   return (
     // FIX: Combined styles into a dynamic flex column that prevents horizontal box bleeding (min-w-0 overflow-hidden)
     <div
-      key={key}
-      className={`shadow-lg rounded-xl border border-gray-100 flex flex-col bg-white w-full min-w-0 overflow-hidden ${className}`}>
+      // key={key}
+      className={`shadow-lg rounded-xl border border-gray-100 flex flex-col 0bg-white w-full min-w-0 overflow-hidden ${className}`}>
       {/* HEADER SECTION */}
       {title && (
         <div className="px-5 py-4 shrink-0">

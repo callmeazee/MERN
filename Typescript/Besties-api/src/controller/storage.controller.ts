@@ -1,37 +1,19 @@
 import { Request, Response } from "express";
 import { CatchError, TryError } from "../utils/error";
-import {  GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 
-const conn =    new S3Client({
-     region: process.env.REGION,
-     endpoint: `https://s3-${process.env.REGION}.amazonaws.com`,
-     credentials: {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-     }
-})
+import { downloadObject, isFileExist, uploadObject } from "../utils/s3";
 
 
-const isFileExist = async(path:string) => {
-     try {
-          const command = new HeadObjectCommand({
-               Bucket: process.env.S3_BUCKET,
-               Key:path
-          })
-          return true
-     } catch (err) {
-          return false
-     }
-}
+
+
 
 
 
 
 export const downloadFile = async(req: Request, res: Response) => {
      try {
-          const { path } = req.body?.path
+          const  path  = req.body?.path
           if (!path)
                throw TryError("failed to generate download url", 400)
 
@@ -40,15 +22,8 @@ export const downloadFile = async(req: Request, res: Response) => {
           if (!isExist)
                throw TryError("file doesn't exist", 404)
            
-          const option = {
-                 Bucket: process.env.S3_BUCKET,
-                 Key: path 
-          }
-   
-
-         const command  = new GetObjectCommand(option)
-          const url = getSignedUrl(conn, command, { expiresIn: 60 })
-        await  res.json(url)
+          const url = await downloadObject(path)
+          res.json({url})
      } catch (err) {
           CatchError(err,res, 'Failed to generate download url')
      }
@@ -64,14 +39,9 @@ export const uploadFile = async(req: Request, res:Response) => {
           const type = req.body?.type
           if (!path || !type)
                throw TryError("Invalid request path or type is required", 400)
-
-      const command =   new PutObjectCommand({
-               Bucket: process.env.S3_BUCKET,
-               Key: path,
-               ContentType: type
-          })
-          const url = await getSignedUrl(conn, command, { expiresIn: 60 })
+          const url = await uploadObject(path, type)
           res.json({url})
+     
      } catch (err) {
           CatchError(err, res, "Failed to generate upload url")
      }

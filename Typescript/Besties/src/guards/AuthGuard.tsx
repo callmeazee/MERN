@@ -1,13 +1,12 @@
 // import CatchError from "./lib/CatchError";
 
 import { useContext, useEffect } from "react";
-import HttpInterceptor from "./lib/HttpInterceptor";
-import Context from "./Context";
+import HttpInterceptor from "../lib/HttpInterceptor";
+import Context from "../Context";
 // import Loader from "./component/shared/Loader";
 import { Navigate, Outlet } from "react-router-dom";
 
-const Guard = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const AuthGuard = () => {
   const { session, setSession } = useContext(Context);
 
   useEffect(() => {
@@ -30,4 +29,4 @@ const Guard = () => {
   return <Outlet />;
 };
 
-export default Guard;
+export default AuthGuard;

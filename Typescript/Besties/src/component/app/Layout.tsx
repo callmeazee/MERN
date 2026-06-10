@@ -1,19 +1,31 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import Avatar from "../shared/Avatar";
 import Card from "../shared/Card";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import Context from "../../Context";
 import HttpInterceptor from "../../lib/HttpInterceptor";
+import { v4 as uuid } from "uuid";
+import useSWR, { mutate } from "swr";
+import Fetcher from "../../lib/Fetcher";
+import CatchError from "../../lib/CatchError";
+
+const eightMinutesInMillisecond = 8 * 60 * 1000;
 
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350);
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false); // UX State for Bottom Sheet
   const rightAsideSize = 450;
   const collapseSize = 130;
 
-  const { pathname } = useLocation();
+  const { error } = useSWR("/auth/refresh-token", Fetcher, {
+    refreshInterval: eightMinutesInMillisecond,
+    shouldRetryOnError: false,
+  });
 
-  const { session } = useContext(Context);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { session, setSession } = useContext(Context);
 
   const menus = [
     {
@@ -48,9 +60,9 @@ const Layout = () => {
       if (!input.files) return;
 
       const file = input.files[0];
-
+      const path = `profile-picture/${uuid()}.png`;
       const payload = {
-        path: "demo/hello.png",
+        path: path,
         type: file.type,
       };
 
@@ -61,17 +73,38 @@ const Layout = () => {
           },
         };
         const { data } = await HttpInterceptor.post("/storage/upload", payload);
+        console.log(data);
         await HttpInterceptor.put(data.url, file, options);
+        const { data: user } = await HttpInterceptor.put(
+          "/auth/profile-picture",
+          { path: path },
+        );
+        setSession({ ...session, image: user.image });
+        mutate("/auth/refresh-token");
       } catch (err) {
         console.log(err);
       }
     };
   };
 
+  const logout = async () => {
+    try {
+      await HttpInterceptor.post("/auth/logout");
+      navigate("/login");
+    } catch (err) {
+      CatchError(err);
+    }
+  };
+
+  useEffect(() => {
+    if (error) {
+      logout();
+    }
+  }, [error]);
+
   return (
     <div className="min-h-screen bg-slate-50 lg:flex lg:flex-row overflow-x-hidden">
       {/* LEFT NAVIGATION DRAWER */}
-      {/* Mobile: Bottom Fixed Bar | Desktop: Fixed Left Sidebar with state width changes */}
       <aside
         className="fixed bottom-0 left-0 w-full z-50 p-2 bg-white/80 backdrop-blur-xl border-t border-white/20
                    lg:top-0 lg:bottom-auto lg:h-full lg:p-6 lg:border-t-0 lg:border-r lg:bg-white/5"
@@ -79,10 +112,9 @@ const Layout = () => {
           {
             width: "var(--left-width, 100%)",
             transition: "width 0.2s ease-in-out",
-            "--left-width": `calc(100vw * 0 + ${leftAsideSize}px)`, // Flips gracefully using pure CSS rules on desktop layouts
+            "--left-width": `calc(100vw * 0 + ${leftAsideSize}px)`,
           } as React.CSSProperties
         }>
-        {/* We use a Tailwind override to break standard mobile dimensions on desktop viewports */}
         <div
           className={`h-full rounded-2xl lg:rounded-[28px] shadow-2xl px-4 py-3 lg:py-6 flex flex-row lg:flex-col justify-between lg:justify-start ${
             leftAsideSize === collapseSize ? "lg:items-center" : ""
@@ -91,7 +123,7 @@ const Layout = () => {
             background:
               "linear-gradient(160deg,#3b1f7a 0%,#1e1060 35%,#100d3a 65%,#0a0d28 100%)",
           }}>
-          {/* User Profile */}
+          {/* User Profile (Desktop Only) */}
           <div className="hidden lg:block animate__animated animate__fadeIn">
             {session && (
               <Avatar
@@ -100,7 +132,7 @@ const Layout = () => {
                 subtitle={session.email}
                 titleColor="white"
                 subtitleColor="#ddd"
-                image="/images/woman.png"
+                image={session.image || "/images/woman.png"}
                 onClick={uploadImage}
               />
             )}
@@ -124,10 +156,24 @@ const Layout = () => {
                 </span>
               </Link>
             ))}
+
+            {/* NEW: Mobile Profile Trigger Button */}
+            <button
+              onClick={() => setIsMobileProfileOpen(true)}
+              className="flex flex-col lg:hidden items-center gap-1 px-3 py-1.5 rounded-xl text-[#b8aadf] text-xs font-medium
+                         transition-all duration-150 hover:bg-white/90 hover:text-[#1e1060] cursor-pointer">
+              <img
+                src={session?.image || "/images/woman.png"}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover border border-white/20"
+              />
+              <span className="capitalize">Profile</span>
+            </button>
           </div>
 
           <div className="hidden lg:block border-t border-white/10 pt-2">
             <button
+              onClick={logout}
               title="logout"
               className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl w-full text-left
                         text-[#b8aadf] text-sm font-medium transition-all duration-150 cursor-pointer
@@ -143,7 +189,6 @@ const Layout = () => {
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      {/* Uses pure CSS calc properties to dynamically subtract spacing parameters without layout shifts */}
       <main
         className="flex-1 rounded-2xl py-6 px-4 mb-20 lg:mb-0 lg:py-8 lg:px-6 w-full"
         style={
@@ -152,7 +197,6 @@ const Layout = () => {
             marginLeft: "var(--main-ml, 0px)",
             marginRight: "var(--main-mr, 0px)",
             transition: "margin 0.3s ease-in-out",
-            // Real-time CSS calc values targeting desktop boundaries natively
             "--main-ml": `calc(0px + ${leftAsideSize}px)`,
             "--main-mr": `calc(0px + ${rightAsideSize}px)`,
           } as CSSProperties
@@ -182,7 +226,6 @@ const Layout = () => {
       </main>
 
       {/* RIGHT FRIENDS DRAWER */}
-      {/* Mobile: Bottom linear stack | Desktop: Hard-locked right edge panel using safe width specifications */}
       <aside
         className="p-4 lg:p-6 overflow-auto border-t lg:border-t-0 lg:border-l border-gray-100 w-full lg:fixed lg:top-0 lg:right-0 lg:h-full z-40"
         style={
@@ -194,7 +237,7 @@ const Layout = () => {
         }>
         <Card className="h-full" noPadding>
           <div className="flex flex-col h-full divide-y divide-gray-100">
-            {/* 1. SUGGESTED FRIENDS SECTION (TOP) */}
+            {/* SUGGESTED FRIENDS */}
             <div className="p-4 shrink-0">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
@@ -205,7 +248,6 @@ const Layout = () => {
                 </button>
               </div>
 
-              {/* Horizontal Scrollable Row for Suggestions */}
               <div className="flex gap-3 overflow-x-auto pb-2 pt-1 scrollbar-hide snap-x">
                 {Array(15)
                   .fill(0)
@@ -213,7 +255,6 @@ const Layout = () => {
                     <div
                       key={idx}
                       className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col items-center justify-center text-center min-w-27.5 snap-start hover:shadow-sm transition-shadow">
-                      {/* Compact Avatar Fallback */}
                       <div className="w-12 h-12 rounded-full bg-linear-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm mb-2 shadow-sm">
                         SF
                       </div>
@@ -223,7 +264,6 @@ const Layout = () => {
                       <p className="text-[10px] text-slate-400 mb-2 truncate w-full max-w-22.5">
                         Mutual Friend
                       </p>
-                      {/* Quick Add Button */}
                       <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg transition-colors w-full cursor-pointer flex items-center justify-center gap-1">
                         <i className="ri-user-add-line"></i> Add
                       </button>
@@ -232,14 +272,12 @@ const Layout = () => {
               </div>
             </div>
 
-            {/* 2. MY FRIENDS LIST SECTION (BOTTOM) */}
-            {/* flex-1 min-h-0 and flex flex-col allows the main list to take up all remaining height perfectly */}
+            {/* MY FRIENDS LIST */}
             <div className="flex-1 min-h-0 flex flex-col p-4">
               <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 shrink-0">
                 My Friends
               </h2>
 
-              {/* Scrollable list frame */}
               <div className="flex-1 overflow-y-auto space-y-4 pr-1">
                 {Array(20)
                   .fill(0)
@@ -263,7 +301,6 @@ const Layout = () => {
                         }
                       />
 
-                      {/* Action Row Fixed Order: Message -> Audio -> Video */}
                       <div className="flex items-center gap-3">
                         <Link to="/app/chat">
                           <button
@@ -295,7 +332,86 @@ const Layout = () => {
         </Card>
       </aside>
 
-      {/* Embedded CSS Breakpoint overrides so standard styles behave flawlessly on browser zoom events */}
+      {/* NEW: MOBILE PROFILE BOTTOM SHEET VIEW */}
+      {isMobileProfileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex items-end justify-center">
+          {/* Dark Glass Backdrop */}
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => setIsMobileProfileOpen(false)}
+          />
+
+          {/* Sheet Container */}
+          <div className="relative w-full bg-white rounded-t-4xl p-6 shadow-2xl transition-transform duration-300 transform translate-y-0 flex flex-col items-center z-10 max-h-[85vh] overflow-y-auto">
+            {/* Grabber Indicator */}
+            <div
+              className="w-12 h-1.5 bg-slate-200 rounded-full mb-6 cursor-pointer"
+              onClick={() => setIsMobileProfileOpen(false)}
+            />
+
+            {/* Profile Detail Overview */}
+            {session && (
+              <div className="flex flex-col items-center text-center w-full mb-6">
+                <div
+                  className="relative cursor-pointer group rounded-full overflow-hidden shadow-md active:scale-95 transition-transform"
+                  onClick={() => {
+                    setIsMobileProfileOpen(false); // Close drawer safely before file dialog opens
+                    uploadImage();
+                  }}>
+                  <Avatar
+                    size="lg"
+                    image={session.image || "/images/woman.png"}
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
+                    <i className="ri-camera-line text-xl"></i>
+                  </div>
+                </div>
+
+                <h3 className="text-lg font-bold text-slate-800 mt-4">
+                  {session.fullname}
+                </h3>
+                <p className="text-sm text-slate-500 font-medium">
+                  {session.email}
+                </p>
+              </div>
+            )}
+
+            <div className="w-full border-t border-slate-100 my-2" />
+
+            {/* Functional Menu Options */}
+            <div className="w-full space-y-3">
+              {/* Profile Redirection Button */}
+              <Link
+                to="/app/profile"
+                onClick={() => setIsMobileProfileOpen(false)}
+                className="flex items-center gap-3 px-4 py-3.5 rounded-xl w-full bg-slate-50 text-slate-700 font-semibold text-sm transition-colors cursor-pointer hover:bg-slate-100">
+                <i className="ri-user-settings-line text-lg text-indigo-500"></i>
+                <span className="flex-1 text-left">Edit Account Details</span>
+                <i className="ri-arrow-right-s-line text-slate-400"></i>
+              </Link>
+
+              {/* Mobile Destructive Action Button (Logout) */}
+              <button
+                onClick={() => {
+                  setIsMobileProfileOpen(false);
+                  logout();
+                }}
+                className="flex items-center justify-center gap-3 px-4 py-3.5 rounded-xl w-full text-center bg-red-50 text-red-600 font-bold text-sm transition-all cursor-pointer hover:bg-red-100">
+                <i className="ri-logout-box-r-line text-lg"></i>
+                Logout Account
+              </button>
+
+              <button
+                onClick={() => setIsMobileProfileOpen(false)}
+                className="flex items-center justify-center px-4 py-2.5 rounded-xl w-full text-center text-slate-400 text-xs font-semibold tracking-wide uppercase cursor-pointer">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Embedded CSS Breakpoint overrides */}
       <style>{`
         @media (max-width: 1023px) {
           aside, main {

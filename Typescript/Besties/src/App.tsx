@@ -14,7 +14,8 @@ import NotFound from "./component/shared/NotFound";
 import { ToastContainer } from "react-toastify";
 import Context from "./Context";
 import { useState } from "react";
-import Guard from "./Guard";
+import AuthGuard from "./guards/AuthGuard";
+import RedirectGuard from "./guards/RedirectGuard";
 
 const App = () => {
   const [session, setSession] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -23,13 +24,16 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route element={<Guard />}>
+
+          <Route element={<RedirectGuard />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Route>
+
+          <Route element={<AuthGuard />}>
             <Route path="/app" element={<Layout />}>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="posts" element={<Post />} />
-
               <Route path="friends" element={<Friends />} />
               <Route path="video" element={<Video />} />
               <Route path="audio" element={<Audio />} />
@@ -37,6 +41,7 @@ const App = () => {
               <Route path="friends" element={<Friends />} />
             </Route>
           </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ToastContainer />

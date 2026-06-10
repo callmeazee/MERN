@@ -2,17 +2,23 @@ import Card from "./shared/Card";
 import Input from "./shared/Input";
 import Button from "./shared/Button";
 import IconButton from "./shared/IconButton";
-import { Link, useNavigate } from "react-router-dom";
+import { data, Link, useNavigate } from "react-router-dom";
 import Form, { type FormDataType } from "./shared/Form";
 import HttpInterceptor from "../lib/HttpInterceptor";
 import CatchError from "../lib/CatchError";
 
+import { useContext } from "react";
+import Context from "../Context";
+
 const Login = () => {
+  const { setSession } = useContext(Context);
   const navigate = useNavigate();
   const handleLogin = async (values: FormDataType) => {
     try {
       await HttpInterceptor.post("/auth/login", values);
-      navigate("/app");
+      await HttpInterceptor.get("/auth/session");
+      setSession(data);
+      navigate("/app/dashboard");
     } catch (err: unknown) {
       CatchError(err);
     }

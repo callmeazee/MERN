@@ -12,6 +12,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import AuthRouter from './routes/auth.routes'
 import StorageRouter from './routes/storage.route'
+import AuthMiddleware from './middleware/auth.middleware'
 const app = express()
 
 
@@ -40,7 +41,7 @@ app.use(cookieParser())
 
 
 app.use('/auth', AuthRouter)
-app.use("/storage", StorageRouter)
+app.use("/storage", AuthMiddleware,  StorageRouter)
 
 
 

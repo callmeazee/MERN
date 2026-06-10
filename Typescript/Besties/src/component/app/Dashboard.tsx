@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../shared/Button";
 import Card from "../shared/Card";
-import Divider from "../shared/divider";
+import Divider from "../shared/Divider";
 import IconButton from "../shared/IconButton";
 
 const Dashboard = () => {
