@@ -1,11 +1,11 @@
 import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
-
+type ACLType = 'private' | 'public-read'
 
 const conn =    new S3Client({
      region: process.env.REGION,
-     endpoint: `https://s3-${process.env.REGION}.amazonaws.com`,
+     endpoint: `https://s3.${process.env.REGION}.amazonaws.com`,
      credentials: {
           accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
@@ -28,23 +28,24 @@ export const isFileExist = async(path:string)  => {
 }
 
 
-export const downloadObject = async( path:string, expiry: number =60) => {
+export const downloadObject = async( path:string, expiry: number =60, ) => {
 
           const option = {
                  Bucket: process.env.S3_BUCKET,
-                 Key: path 
+               Key: path,
+              
           }
    
 
          const command  = new GetObjectCommand(option)
-          const url = getSignedUrl(conn, command, { expiresIn: 60 })
+          const url = getSignedUrl(conn, command, { expiresIn: expiry })
        return url
     
 
 }
 
 
-export const uploadObject = async(path:string, type:string) => {
+export const uploadObject = async(path:string, type:string,  acl: ACLType = 'private') => {
 
   
     
@@ -52,7 +53,8 @@ export const uploadObject = async(path:string, type:string) => {
       const command =   new PutObjectCommand({
                Bucket: process.env.S3_BUCKET,
                Key: path,
-               ContentType: type
+           ContentType: type,
+                  ACL: acl
           })
           const url = await getSignedUrl(conn, command, { expiresIn: 60 })
            return url

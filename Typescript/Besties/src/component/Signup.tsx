@@ -49,7 +49,11 @@ const Signup = () => {
                     placeholder="name@example.com"
                     type="email"
                   />
-                  <Input name="mobile" placeholder="9893997321" type="tel" />
+                  <Input
+                    name="mobile"
+                    placeholder="+91-9893997321"
+                    type="tel"
+                  />
                   <Input
                     name="password"
                     placeholder="Create a secure password"

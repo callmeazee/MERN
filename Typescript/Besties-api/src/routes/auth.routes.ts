@@ -10,7 +10,7 @@ AuthRouter.post("/signup", signup)
 AuthRouter.post("/login", login)
 AuthRouter.post("/logout", logout)
 AuthRouter.get("/refresh-token", RefreshTokenMiddleware, refreshToken)
-AuthRouter.get("/session", getSession)
+AuthRouter.get("/session", AuthMiddleware, getSession)
 AuthRouter.put("/profile-picture", AuthMiddleware, updateProfilePicture)
 
 export default AuthRouter

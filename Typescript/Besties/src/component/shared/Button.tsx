@@ -32,6 +32,9 @@ interface ButtonInterface {
   onClick?: () => void;
   icon?: string;
   className?: string; // NEW: Supports external Tailwind style extensions natively
+  key?: string | number;
+  loading?: boolean;
+  disabled?: boolean;
 }
 
 const Button: FC<ButtonInterface> = ({
@@ -40,10 +43,24 @@ const Button: FC<ButtonInterface> = ({
   onClick,
   icon,
   className = "", // Defaults to empty string to prevent undefined additions
+  key = 0,
+  loading = false,
+  disabled = false,
 }) => {
+  if (loading)
+    return (
+      <button disabled className=" text-gray-400 text-[13px] font-semibold  ">
+        <i className="fa fa-spinner fa-spin mr-2 "></i>
+        Loading....
+      </button>
+    );
   return (
     // FIX: String interpolation joins your design variant styles with the parent's contextual alignments
-    <button className={`${ButtenModel[type]} ${className}`} onClick={onClick}>
+    <button
+      key={key}
+      className={`${ButtenModel[type]} ${className}`}
+      onClick={onClick}
+      disabled={disabled}>
       {icon && (
         <i className={`ri-${icon} mr-2 flex items-center justify-center`}></i>
       )}

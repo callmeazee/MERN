@@ -6,18 +6,13 @@ import { downloadObject, isFileExist, uploadObject } from "../utils/s3";
 
 
 
-
-
-
-
-
 export const downloadFile = async(req: Request, res: Response) => {
      try {
           const  path  = req.body?.path
           if (!path)
                throw TryError("failed to generate download url", 400)
 
-          const isExist = isFileExist(path)
+          const isExist = await isFileExist(path)
 
           if (!isExist)
                throw TryError("file doesn't exist", 404)
@@ -37,9 +32,12 @@ export const uploadFile = async(req: Request, res:Response) => {
      try {
           const path = req.body?.path
           const type = req.body?.type
-          if (!path || !type)
+          const status = req.body?.status
+          if (!path || !type || !status)
                throw TryError("Invalid request path or type is required", 400)
-          const url = await uploadObject(path, type)
+
+          
+          const url = await uploadObject(path, type, status)
           res.json({url})
      
      } catch (err) {

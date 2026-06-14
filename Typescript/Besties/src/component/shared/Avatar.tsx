@@ -44,7 +44,7 @@ const Avatar: FC<avatarInterface> = ({
             style={{ color: titleColor }}>
             {title}
           </h1>
-          <div className="text-sm capitalize" style={{ color: subtitleColor }}>
+          <div className="text-sm" style={{ color: subtitleColor }}>
             {subtitle}
           </div>
         </div>

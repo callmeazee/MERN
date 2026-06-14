@@ -5,15 +5,16 @@ import jwt from 'jsonwebtoken'
 import {v4 as uuid} from 'uuid'
 import { CatchError, TryError} from '../utils/error'
 import { PayloadInterface, SessionInterface } from '../middleware/auth.middleware'
-import { downloadObject } from '../utils/s3'
+
 import moment from 'moment'
+
 
 
 
 type refreshTokenType = 'at' | 'rt'
 
 
-const accessTokenExpiry = '15m'
+const accessTokenExpiry = '10m'
 
 const tenMinInMilliseconds = (60 * 15) * 1000
 
@@ -39,7 +40,8 @@ const getOptions = (tokenType : refreshTokenType) => {
              httpOnly: true,
                maxAge: tokenType === "at" ? tenMinInMilliseconds : sevenDaysInMillisecond,
                secure: false,
-               domain: 'localhost'
+          domain: 'localhost',
+               
      }
 }
 
@@ -113,12 +115,12 @@ export const login = async(req: Request, res: Response) => {
         throw TryError("invalid credential, email or password is inscorrect", 401)
           
 
-          const payload = {
+          const payload : PayloadInterface = {
                id: user._id,
                fullname: user.fullname,
                mobile: user.mobile,
                email: user.email,
-               image: user.image ? await downloadObject(user.image) : null
+               image: user.image 
           }
 
           // const options = {
@@ -155,7 +157,7 @@ export const refreshToken = async(req: SessionInterface, res:Response) => {
           if (!req.session)
                throw TryError('failed to refresh token', 401)
 
-           req.session.image = (req.session.image ? await downloadObject(req.session.image) : null)
+          //  req.session.image = (req.session.image ? await downloadObject(req.session.image) : null)
 
           const { accessToken, refreshToken } = generateToken(req.session)
           await AuthModel.updateOne({ _id: req.session.id }, {
@@ -193,12 +195,12 @@ export const getSession = async(req: Request, res:Response) => {
 
 export const updateProfilePicture = async(req:SessionInterface, res: Response) => {
      try {
-          const path = req.body.path
+          const path = `${process.env.S3_URL}/${req.body.path}`
           if(!path || !req.session)
                throw TryError("Failed to update", 400)
           await AuthModel.updateOne({ _id: req.session.id }, { $set: { image: path } })
-          const url = await downloadObject(path)
-          res.json({image:url})
+        
+          res.json({image:path})
      } catch (err) {
           CatchError(err,res, "failed to update profile picture")
      }
@@ -209,14 +211,15 @@ export const logout = async(req: Request, res:Response) => {
      try {
 
           const options = {
-               http: true,
+               httpOnly: true,
                maxAge: 0,
                secure: false,
-               domain: 'localhost'
+               domain: 'localhost',
+               
          }
 
 
-          res.clearCookie('accesstoken', options)
+          res.clearCookie('accessToken', options)
           res.clearCookie('refreshToken', options)
           res.json({message: 'Logout successfull'})
           

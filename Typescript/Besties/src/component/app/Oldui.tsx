@@ -714,3 +714,200 @@ export default Post
 // };
 
 // export default Layout;
+
+/* 
+
+import useSWR, { mutate } from "swr";
+import Fetcher from "../../lib/Fetcher";
+import { Empty, Skeleton } from "antd";
+import NotFound from "../shared/NotFound";
+import Button from "../shared/Button";
+import CatchError from "../../lib/CatchError";
+import HttpInterceptor from "../../lib/HttpInterceptor";
+import { useState } from "react";
+import moment from "moment";
+import { toast } from "react-toastify";
+
+// Expanded to track exactly WHICH action is loading per index row
+interface LoadingInterface {
+  state: boolean;
+  index: null | number;
+  action: "accept" | "reject" | null;
+}
+
+// Strongly-typed friend request item
+interface FriendRequestItem {
+  _id: string;
+  user?: {
+    fullname?: string;
+    image?: string;
+  } | null;
+  createdAt: string;
+}
+
+const FriendRequests = () => {
+  const [loading, setLoading] = useState<LoadingInterface>({
+    state: false,
+    index: null,
+    action: null,
+  });
+
+  // Fetching data from your incoming friend requests route
+  const { data, error, isLoading } = useSWR("/friend/request", Fetcher, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+  });
+
+  if (error)
+    return (
+      <div>
+        <NotFound />
+      </div>
+    );
+  if (isLoading || !data)
+    return (
+      <div className="p-4 space-y-3">
+        <Skeleton active paragraph={{ rows: 3 }} />
+      </div>
+    );
+  if (data.length === 0)
+    return (
+      <div className="p-6">
+        <Empty description="No pending friend requests" />
+      </div>
+    );
+
+  // Unified Request Handler
+  const handleRequestAction = async (
+    requestId: string,
+    index: number,
+    action: "accept" | "reject",
+  ) => {
+    try {
+      setLoading({ state: true, index, action });
+
+      // Hit your backend endpoint (adjust paths matching your controller routers structure)
+      await HttpInterceptor.put(`/friend/request/${requestId}`, {
+        status: action,
+      });
+
+      toast.success(`Request ${action}ed successfully!`, {
+        position: "top-center",
+      });
+
+      // Global mutations to sync UI states instantly
+      mutate("/friend/request");
+      mutate("/friend"); // Revalidates active connections tab
+    } catch (err) {
+      CatchError(err);
+    } finally {
+      setLoading({ state: false, index: null, action: null });
+    }
+  };
+
+  return (
+    <div className="p-4 w-full max-w-2xl mx-auto">
+      <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+        Friend Requests
+      </h2>
+      {/* HEADER SECTION */
+//       <div className="flex items-center justify-between mb-4">
+//         <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+//           Pending Requests ({data.length})
+//         </h2>
+//       </div>
+
+//       {/* RESPONSIVE VERTICAL SCROLL CONTAINER */}
+//       <div className="flex flex-col gap-3 max-h-125 overflow-y-auto pr-1 pb-2 custom-scrollbar">
+//         {data &&
+//           data.map((item: FriendRequestItem, idx: number) => {
+//             // Fallback Initials Generation logic safely protected
+//             const initials = item.user?.fullname
+//               ? item.user.fullname
+//                   .trim()
+//                   .split(/\s+/)
+//                   .map((w: string) => w[0])
+//                   .join("")
+//                   .toUpperCase()
+//                   .slice(0, 2)
+//               : "??";
+
+//             return (
+//               <div
+//                 key={item._id || idx}
+//                 className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 hover:shadow-sm transition-shadow duration-200">
+//                 {/* LEFT PROFILE & BLOCK INFO */}
+//                 <div className="flex items-center gap-3 w-full sm:w-auto">
+//                   <div className="w-12 h-12 rounded-full bg-linear-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm shrink-0">
+//                     {item.user?.image ? (
+//                       <img
+//                         src={item.user.image}
+//                         alt={item.user.fullname}
+//                         className="w-full h-full object-cover rounded-full"
+//                       />
+//                     ) : (
+//                       initials
+//                     )}
+//                   </div>
+
+//                   <div className="truncate">
+//                     <h4 className="text-sm font-bold text-slate-700 capitalize truncate">
+//                       {item.user?.fullname || "Anonymous User"}
+//                     </h4>
+//                     <p className="text-[11px] text-slate-400">
+//                       {`Received ${moment(item.createdAt).fromNow()}`}
+//                     </p>
+//                   </div>
+//                 </div>
+
+//                 {/* RIGHT ROW: ACTIONS PANEL (Full width on mobile layout seamlessly) */}
+//                 <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+//                   {/* REJECT BUTTON */}
+//                   <Button
+//                     className="bg-slate-200 hover:bg-slate-300 text-slate-600 text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors flex-1 sm:flex-none justify-center"
+//                     icon="close-line"
+//                     loading={
+//                       loading.state &&
+//                       loading.index === idx &&
+//                       loading.action === "reject"
+//                     }
+//                     disabled={
+//                       loading.state &&
+//                       loading.index === idx &&
+//                       loading.action === "accept"
+//                     }
+//                     onClick={() =>
+//                       handleRequestAction(item._id, idx, "reject")
+//                     }>
+//                     Reject
+//                   </Button>
+
+//                   {/* ACCEPT BUTTON */}
+//                   <Button
+//                     className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors flex-1 sm:flex-none justify-center"
+//                     icon="user-check-line"
+//                     loading={
+//                       loading.state &&
+//                       loading.index === idx &&
+//                       loading.action === "accept"
+//                     }
+//                     disabled={
+//                       loading.state &&
+//                       loading.index === idx &&
+//                       loading.action === "reject"
+//                     }
+//                     onClick={() =>
+//                       handleRequestAction(item._id, idx, "accept")
+//                     }>
+//                     Accept
+//                   </Button>
+//                 </div>
+//               </div>
+//             );
+//           })}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default FriendRequests;

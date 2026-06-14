@@ -5,24 +5,25 @@ import HttpInterceptor from "../lib/HttpInterceptor";
 import Context from "../Context";
 // import Loader from "./component/shared/Loader";
 import { Navigate, Outlet } from "react-router-dom";
+import Loader from "../component/shared/Loader";
 
 const AuthGuard = () => {
   const { session, setSession } = useContext(Context);
+  const getSession = async () => {
+    try {
+      const { data } = await HttpInterceptor.get("/auth/session");
+      setSession(data);
+    } catch (err) {
+      setSession(false);
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const { data } = await HttpInterceptor.get("/auth/session");
-        setSession(data);
-      } catch (err) {
-        setSession(false);
-        console.log(err);
-      }
-    };
     getSession();
   }, []);
 
-  if (session === null) return null;
+  if (session === null) return <Loader />;
   // return <Loader />;
   if (session === false) return <Navigate to="/login" />;
 
