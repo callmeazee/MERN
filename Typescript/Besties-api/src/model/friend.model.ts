@@ -24,14 +24,12 @@ const friendSchema = new Schema({
 
 
 friendSchema.pre('save', async function () {
-     try {
+   
           const count = await model('Friend').countDocuments({ user: this.user, friend: this.friend })
           if (count > 0)
                throw new Error('Friend request already sent !')
        
-     } catch (err) {
-       new Error('Failed to send friend request')
-  }
+  
      
 })
 

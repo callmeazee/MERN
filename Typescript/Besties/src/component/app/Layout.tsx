@@ -77,7 +77,6 @@ const Layout = () => {
           headers: {
             "Content-Type": file.type,
           },
-          // transformRequest: [(data) => data],
         };
         const { data } = await HttpInterceptor.post("/storage/upload", payload);
         console.log(data);
@@ -111,6 +110,42 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 lg:flex lg:flex-row overflow-x-hidden">
+      {/* =========================================================================
+          🆕 NEW STICKY TOP BRANDING HEADER (Visible on Mobile & Tablet Views Only)
+          ========================================================================= */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 z-40 px-4 flex items-center justify-between lg:hidden shadow-xs">
+        {/* Brand Group */}
+        <div className="flex items-center gap-2">
+          {/* Logo Frame Icon */}
+          <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-sm">
+            <i className="ri-heart-pulse-fill text-lg"></i>
+          </div>
+          {/* App Typography Name */}
+          <span className="text-xl font-black tracking-tight bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent capitalize">
+            besties
+          </span>
+        </div>
+
+        {/* Action Controls Frame */}
+        <div className="flex items-center gap-2">
+          {/* Search Action Toggle button */}
+          <button
+            onClick={() => alert("Search functionality triggered")}
+            className="w-9 h-9 rounded-xl text-slate-500 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer">
+            <i className="ri-search-2-line text-lg"></i>
+          </button>
+
+          {/* Interactive Live Notifications Indicator */}
+          <button
+            onClick={() => alert("Notifications drawer coming soon")}
+            className="w-9 h-9 rounded-xl text-slate-500 hover:bg-slate-100 flex items-center justify-center transition-colors relative cursor-pointer">
+            <i className="ri-notification-3-line text-lg"></i>
+            {/* Live Indicator Alert Pulse Badge */}
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white animate-pulse"></span>
+          </button>
+        </div>
+      </header>
+
       {/* LEFT NAVIGATION DRAWER */}
       <aside
         className="fixed bottom-0 left-0 w-full z-50 p-2 bg-white/80 backdrop-blur-xl border-t border-white/20
@@ -164,7 +199,7 @@ const Layout = () => {
               </Link>
             ))}
 
-            {/* NEW: Mobile Profile Trigger Button */}
+            {/* Mobile Profile Trigger Button */}
             <button
               onClick={() => setIsMobileProfileOpen(true)}
               className="flex flex-col lg:hidden items-center gap-1 px-3 py-1.5 rounded-xl text-[#b8aadf] text-xs font-medium
@@ -196,8 +231,9 @@ const Layout = () => {
       </aside>
 
       {/* MAIN CONTENT AREA */}
+      {/* 🛑 Added "pt-16 lg:pt-8" padding to correctly compensate for the mobile header displacement block layout height */}
       <main
-        className="flex-1 rounded-2xl py-6 px-4 mb-20 lg:mb-0 lg:py-8 lg:px-6 w-full"
+        className="flex-1 rounded-2xl pt-20 pb-6 px-4 mb-2 lg:mb-0 lg:py-8 lg:px-6 w-full"
         style={
           {
             width: "100%",
@@ -254,7 +290,7 @@ const Layout = () => {
         </Card>
       </aside>
 
-      {/* NEW: MOBILE PROFILE BOTTOM SHEET VIEW */}
+      {/* MOBILE PROFILE BOTTOM SHEET VIEW */}
       {isMobileProfileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex items-end justify-center">
           {/* Dark Glass Backdrop */}
@@ -277,7 +313,7 @@ const Layout = () => {
                 <div
                   className="relative cursor-pointer group rounded-full overflow-hidden shadow-md active:scale-95 transition-transform"
                   onClick={() => {
-                    setIsMobileProfileOpen(false); // Close drawer safely before file dialog opens
+                    setIsMobileProfileOpen(false);
                     uploadImage();
                   }}>
                   <Avatar

@@ -911,3 +911,491 @@ const FriendRequests = () => {
 // };
 
 // export default FriendRequests;
+
+/* 
+
+import Card from "../shared/Card";
+import Button from "../shared/Button"; // Imported your shared button component
+import useSWR, { mutate } from "swr";
+import Fetcher from "../../lib/Fetcher";
+import Loader from "../shared/Loader";
+import NotFound from "../shared/NotFound";
+import CatchError from "../../lib/CatchError";
+import HttpInterceptor from "../../lib/HttpInterceptor";
+
+interface FriendDataInterface {
+  id: string;
+  fullname: string | null;
+  email: string;
+  image: string | null;
+}
+interface FriendInterface {
+  _id: string;
+  status: string;
+  friend: FriendDataInterface;
+  // ✅ Typed cleanly as an object, not a string
+}
+
+const Friends = () => {
+  // Mock dataset representation to easily tie into backend data payloads later
+  // const friendsList = Array(20).fill({
+  //   name: "John Alex",
+  //   role: "Full Stack Developer",
+  //   image: "/images/man1.png", // Safe image pointer path mapping
+  // });
+
+  const { data: friendsList, isLoading, error } = useSWR("/friend", Fetcher);
+  console.log(friendsList);
+
+  if (isLoading) return <Loader />;
+  if (error) return <NotFound />;
+
+  const unfriend = async (id: string) => {
+    try {
+      await HttpInterceptor.delete(`/friend/${id}`);
+      mutate("/friend");
+    } catch (err) {
+      CatchError(err);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* DIRECTORY HEADER METRICS ROW */
+//       <div className="flex items-center justify-between pb-2">
+//         <p className="text-sm font-medium text-slate-400">
+//           Showing{" "}
+//           <span className="font-semibold text-slate-700">
+//             {friendsList.length}
+//           </span>{" "}
+//           active connections
+//         </p>
+//       </div>
+
+//       {/* DYNAMIC RESPONSIVE GRID CONFIGURATION */}
+//       {/* Mobile: 1 Column | Small Tablets: 2 Columns | Large Laptops: 3 Columns | Ultra-wide: 4 Columns */}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+//         {friendsList.map((item: FriendInterface, idx: number) => (
+//           <Card
+//             key={idx}
+//             noPadding
+//             className="hover:shadow-xl transition-all duration-300 group">
+//             <div className="flex flex-col items-center justify-center p-5 text-center">
+//               {/* Profile Image Wrapper Frame */}
+//               <div className="relative mb-3.5 p-1 rounded-full bg-slate-50 border border-gray-100 group-hover:scale-105 transition-transform duration-300">
+//                 {item.friend.image ? (
+//                   <img
+//                     src={item.friend.image}
+//                     alt={`${item.friend.fullname} profile`}
+//                     className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover shadow-sm bg-white"
+//                     onError={(e) => {
+//                       // Fallback if image asset route doesn't exist
+//                       (e.target as HTMLElement).style.display = "none";
+//                     }}
+//                   />
+//                 ) : (
+//                   // Fallback sleek placeholder if target asset path is null
+//                   <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-linear-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-inner">
+//                     JA
+//                   </div>
+//                 )}
+//                 {/* Active Live Status Dot */}
+//                 <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
+//               </div>
+
+//               {/* Text Block Node Layout */}
+//               <h3 className="text-base font-bold text-slate-800  mb-4 tracking-tight leading-none truncate w-full capitalize">
+//                 {item.friend.fullname}
+//               </h3>
+//               {/* <p className="text-xs text-slate-400 font-medium  truncate w-full max-w-40">
+//                 {item.status}
+//               </p> */}
+
+//               {/* INTEGRATED SHARED COMPONENT BUTTON */}
+//               {/* Replaces raw markup with your modular design system element.
+//                   w-full expands it cleanly to fit the lower card panel width parameters perfectly on mobile */}
+
+//               {item.status === "accepted" ? (
+//                 <Button
+//                   type="danger"
+//                   icon="user-minus-line"
+//                   className="w-full text-xs py-2 rounded-xl justify-center font-semibold bg-rose-500/50 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-100 shadow-none hover:scale-100"
+//                   onClick={() => unfriend(item._id)}>
+//                   Unfriend
+//                 </Button>
+//               ) : (
+//                 <Button
+//                   type="info"
+//                   icon="check-double-line"
+//                   className="w-full text-xs py-2.5 rounded-xl justify-center font-semibold bg-gray-500/50 hover:bg-gray-500 hover:text-white text-gray-600 border border-gray-100 shadow-none hover:scale-100 capitalize"
+//                   onClick={() =>
+//                     alert(`Unfriend handler clicked for item index: ${idx}`)
+//                   }>
+//                   {item.status}
+//                 </Button>
+//               )}
+//             </div>
+//           </Card>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Friends;
+
+//
+
+/* 
+
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import Avatar from "../shared/Avatar";
+import Card from "../shared/Card";
+import { useContext, useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import Context from "../../Context";
+import HttpInterceptor from "../../lib/HttpInterceptor";
+import { v4 as uuid } from "uuid";
+import useSWR, { mutate } from "swr";
+import Fetcher from "../../lib/Fetcher";
+import CatchError from "../../lib/CatchError";
+import FriendSuggestion from "./FriendSuggestion";
+import FriendList from "./FriendList";
+import axios from "axios";
+
+import FriendRequests from "./FriendRequests";
+
+const eightMinutesInMillisecond = 8 * 60 * 1000;
+
+const Layout = () => {
+  const [leftAsideSize, setLeftAsideSize] = useState(350);
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false); // UX State for Bottom Sheet
+  const rightAsideSize = 450;
+  const collapseSize = 130;
+
+  const { error } = useSWR("/auth/refresh-token", Fetcher, {
+    refreshInterval: eightMinutesInMillisecond,
+    shouldRetryOnError: false,
+  });
+
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { session, setSession } = useContext(Context);
+
+  const menus = [
+    {
+      href: "/app/dashboard",
+      label: "dashboard",
+      icon: "ri-home-4-line",
+    },
+    {
+      href: "/app/posts",
+      label: "my posts",
+      icon: "ri-article-line",
+    },
+    {
+      href: "/app/friends",
+      label: "friends",
+      icon: "ri-team-line",
+    },
+  ];
+
+  const getPathName = (path: string) => {
+    const firstPath = path.split("/").pop();
+    const secondPath = firstPath?.split("-").join(" ");
+    return secondPath;
+  };
+
+  const uploadImage = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.click();
+    input.onchange = async () => {
+      if (!input.files) return;
+
+      const file = input.files[0];
+      const path = `profile-picture/${uuid()}.png`;
+      const payload = {
+        path: path,
+        type: file.type,
+        status: "public-read",
+      };
+
+      try {
+        const options = {
+          headers: {
+            "Content-Type": file.type,
+          },
+          // transformRequest: [(data) => data],
+        };
+        const { data } = await HttpInterceptor.post("/storage/upload", payload);
+        console.log(data);
+        await axios.put(data.url, file, options);
+        const { data: user } = await HttpInterceptor.put(
+          "/auth/profile-picture",
+          { path: path },
+        );
+        setSession({ ...session, image: user.image });
+        mutate("/auth/refresh-token");
+      } catch (err) {
+        console.log(err);
+      }
+    };
+  };
+  const logout = async () => {
+    try {
+      await HttpInterceptor.post("/auth/logout");
+      setSession(null);
+      navigate("/login");
+    } catch (err) {
+      CatchError(err);
+    }
+  };
+
+  useEffect(() => {
+    if (error) {
+      logout();
+    }
+  }, [error]);
+
+  return (
+    <div className="min-h-screen bg-slate-50 lg:flex lg:flex-row overflow-x-hidden">
+      {/* LEFT NAVIGATION DRAWER */
+//       <aside
+//         className="fixed bottom-0 left-0 w-full z-50 p-2 bg-white/80 backdrop-blur-xl border-t border-white/20
+//                    lg:top-0 lg:bottom-auto lg:h-full lg:p-6 lg:border-t-0 lg:border-r lg:bg-white/5"
+//         style={
+//           {
+//             width: "var(--left-width, 100%)",
+//             transition: "width 0.2s ease-in-out",
+//             "--left-width": `calc(100vw * 0 + ${leftAsideSize}px)`,
+//           } as React.CSSProperties
+//         }>
+//         <div
+//           className={`h-full rounded-2xl lg:rounded-[28px] shadow-2xl px-4 py-3 lg:py-6 flex flex-row lg:flex-col justify-between lg:justify-start ${
+//             leftAsideSize === collapseSize ? "lg:items-center" : ""
+//           } transition-all duration-500 ease-in-out`}
+//           style={{
+//             background:
+//               "linear-gradient(160deg,#3b1f7a 0%,#1e1060 35%,#100d3a 65%,#0a0d28 100%)",
+//           }}>
+//           {/* User Profile (Desktop Only) */}
+//           <div className="hidden lg:block animate__animated animate__fadeIn">
+//             {session && (
+//               <Avatar
+//                 title={leftAsideSize === collapseSize ? null : session.fullname}
+//                 size={leftAsideSize === collapseSize ? "md" : "lg"}
+//                 subtitle={session.email}
+//                 titleColor="white"
+//                 subtitleColor="#ddd"
+//                 image={session.image || "/images/woman.png"}
+//                 onClick={uploadImage}
+//               />
+//             )}
+//           </div>
+
+//           <div className="hidden lg:block border-b border-white/10 pt-2 mt-5 -mx-4" />
+
+//           {/* Navigation Links */}
+//           <div className="flex flex-row lg:flex-col justify-around lg:justify-start gap-2 flex-1 lg:pt-2 lg:mt-6 w-full">
+//             {menus.map((item, idx) => (
+//               <Link
+//                 title={item.label}
+//                 to={item.href}
+//                 key={idx}
+//                 className="flex flex-col lg:flex-row items-center gap-1 lg:gap-3 px-3 py-1.5 lg:px-3.5 lg:py-2.5 rounded-xl text-[#b8aadf] text-xs lg:text-sm font-medium
+//                            transition-all duration-150 hover:bg-white/90 hover:text-[#1e1060]">
+//                 <i className={`${item.icon} text-lg lg:text-xl`}></i>
+//                 <span
+//                   className={`capitalize ${leftAsideSize === collapseSize ? "lg:hidden" : ""}`}>
+//                   {item.label}
+//                 </span>
+//               </Link>
+//             ))}
+
+//             {/* NEW: Mobile Profile Trigger Button */}
+//             <button
+//               onClick={() => setIsMobileProfileOpen(true)}
+//               className="flex flex-col lg:hidden items-center gap-1 px-3 py-1.5 rounded-xl text-[#b8aadf] text-xs font-medium
+//                          transition-all duration-150 hover:bg-white/90 hover:text-[#1e1060] cursor-pointer">
+//               <img
+//                 src={session?.image || "/images/woman.png"}
+//                 alt="Profile"
+//                 className="w-8 h-8 rounded-full object-cover border border-white/20"
+//               />
+//               <span className="capitalize">Profile</span>
+//             </button>
+//           </div>
+
+//           <div className="hidden lg:block border-t border-white/10 pt-2">
+//             <button
+//               onClick={logout}
+//               title="logout"
+//               className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl w-full text-left
+//                         text-[#b8aadf] text-sm font-medium transition-all duration-150 cursor-pointer
+//                         hover:bg-red-500/15 hover:text-red-300 mt-3">
+//               <i className="ri-logout-box-r-line text-xl"></i>
+//               <span
+//                 className={leftAsideSize === collapseSize ? "lg:hidden" : ""}>
+//                 Logout
+//               </span>
+//             </button>
+//           </div>
+//         </div>
+//       </aside>
+
+//       {/* MAIN CONTENT AREA */}
+//       <main
+//         className="flex-1 rounded-2xl py-6 px-4 mb-20 lg:mb-0 lg:py-8 lg:px-6 w-full"
+//         style={
+//           {
+//             width: "100%",
+//             marginLeft: "var(--main-ml, 0px)",
+//             marginRight: "var(--main-mr, 0px)",
+//             transition: "margin 0.3s ease-in-out",
+//             "--main-ml": `calc(0px + ${leftAsideSize}px)`,
+//             "--main-mr": `calc(0px + ${rightAsideSize}px)`,
+//           } as CSSProperties
+//         }>
+//         <Card
+//           title={
+//             <div className="flex gap-6 items-center">
+//               <button
+//                 className="hidden lg:block bg-gray-100 w-10 h-10 rounded-full hover:bg-slate-200 cursor-pointer"
+//                 onClick={() =>
+//                   setLeftAsideSize(leftAsideSize === 350 ? collapseSize : 350)
+//                 }>
+//                 <i
+//                   className={
+//                     leftAsideSize === collapseSize
+//                       ? "ri-arrow-right-line"
+//                       : "ri-arrow-left-line"
+//                   }></i>
+//               </button>
+//               <h1 className="text-xl font-bold text-slate-800 lg:text-2xl">
+//                 {getPathName(pathname)}
+//               </h1>
+//             </div>
+//           }>
+//           <Outlet />
+//         </Card>
+//       </main>
+
+//       {/* RIGHT FRIENDS DRAWER */}
+//       <aside
+//         className="p-4 lg:p-6 overflow-auto border-t lg:border-t-0 lg:border-l border-gray-100 w-full lg:fixed lg:top-0 lg:right-0 lg:h-full z-40"
+//         style={
+//           {
+//             width: "100%",
+//             maxWidth: "var(--right-max-w, 100%)",
+//             "--right-max-w": `calc(0px + ${rightAsideSize}px)`,
+//           } as React.CSSProperties
+//         }>
+//         <Card className="h-full" noPadding>
+//           <div className="flex flex-col h-full divide-y divide-gray-100">
+//             {/* SUGGESTED FRIENDS */}
+//             <FriendSuggestion />
+//             <FriendRequests />
+
+//             {/* MY FRIENDS LIST */}
+//             <FriendList />
+//           </div>
+//         </Card>
+//       </aside>
+
+//       {/* NEW: MOBILE PROFILE BOTTOM SHEET VIEW */}
+//       {isMobileProfileOpen && (
+//         <div className="fixed inset-0 z-50 lg:hidden flex items-end justify-center">
+//           {/* Dark Glass Backdrop */}
+//           <div
+//             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300"
+//             onClick={() => setIsMobileProfileOpen(false)}
+//           />
+
+//           {/* Sheet Container */}
+//           <div className="relative w-full bg-white rounded-t-4xl p-6 shadow-2xl transition-transform duration-300 transform translate-y-0 flex flex-col items-center z-10 max-h-[85vh] overflow-y-auto">
+//             {/* Grabber Indicator */}
+//             <div
+//               className="w-12 h-1.5 bg-slate-200 rounded-full mb-6 cursor-pointer"
+//               onClick={() => setIsMobileProfileOpen(false)}
+//             />
+
+//             {/* Profile Detail Overview */}
+//             {session && (
+//               <div className="flex flex-col items-center text-center w-full mb-6">
+//                 <div
+//                   className="relative cursor-pointer group rounded-full overflow-hidden shadow-md active:scale-95 transition-transform"
+//                   onClick={() => {
+//                     setIsMobileProfileOpen(false); // Close drawer safely before file dialog opens
+//                     uploadImage();
+//                   }}>
+//                   <Avatar
+//                     size="lg"
+//                     image={session.image || "/images/woman.png"}
+//                   />
+//                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
+//                     <i className="ri-camera-line text-xl"></i>
+//                   </div>
+//                 </div>
+
+//                 <h3 className="text-lg font-bold text-slate-800 mt-4">
+//                   {session.fullname}
+//                 </h3>
+//                 <p className="text-sm text-slate-500 font-medium">
+//                   {session.email}
+//                 </p>
+//               </div>
+//             )}
+
+//             <div className="w-full border-t border-slate-100 my-2" />
+
+//             {/* Functional Menu Options */}
+//             <div className="w-full space-y-3">
+//               {/* Profile Redirection Button */}
+//               <Link
+//                 to="/app/profile"
+//                 onClick={() => setIsMobileProfileOpen(false)}
+//                 className="flex items-center gap-3 px-4 py-3.5 rounded-xl w-full bg-slate-50 text-slate-700 font-semibold text-sm transition-colors cursor-pointer hover:bg-slate-100">
+//                 <i className="ri-user-settings-line text-lg text-indigo-500"></i>
+//                 <span className="flex-1 text-left">Edit Account Details</span>
+//                 <i className="ri-arrow-right-s-line text-slate-400"></i>
+//               </Link>
+
+//               {/* Mobile Destructive Action Button (Logout) */}
+//               <button
+//                 onClick={() => {
+//                   setIsMobileProfileOpen(false);
+//                   logout();
+//                 }}
+//                 className="flex items-center justify-center gap-3 px-4 py-3.5 rounded-xl w-full text-center bg-red-50 text-red-600 font-bold text-sm transition-all cursor-pointer hover:bg-red-100">
+//                 <i className="ri-logout-box-r-line text-lg"></i>
+//                 Logout Account
+//               </button>
+
+//               <button
+//                 onClick={() => setIsMobileProfileOpen(false)}
+//                 className="flex items-center justify-center px-4 py-2.5 rounded-xl w-full text-center text-slate-400 text-xs font-semibold tracking-wide uppercase cursor-pointer">
+//                 Cancel
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Embedded CSS Breakpoint overrides */}
+//       <style>{`
+//         @media (max-width: 1023px) {
+//           aside, main {
+//             margin-left: 0px !important;
+//             margin-right: 0px !important;
+//             width: 100% !important;
+//             max-width: 100% !important;
+//           }
+//         }
+//       `}</style>
+//     </div>
+//   );
+// };
+
+// export default Layout;
