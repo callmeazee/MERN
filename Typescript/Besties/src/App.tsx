@@ -4,7 +4,7 @@ import Login from "./component/Login";
 import Signup from "./component/Signup";
 import Layout from "./component/app/Layout";
 import Post from "./component/app/Post";
-import Friends from "./component/app/Friends";
+import Friends from "./component/app/friends/Friends";
 import Dashboard from "./component/app/Dashboard";
 import Video from "./component/app/Video";
 import Audio from "./component/app/Audio";

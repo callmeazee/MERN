@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Avatar from "../shared/Avatar";
+import Avatar from "../../shared/Avatar";
 
 const FriendList = () => {
   return (

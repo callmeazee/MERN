@@ -9,11 +9,11 @@ import { v4 as uuid } from "uuid";
 import useSWR, { mutate } from "swr";
 import Fetcher from "../../lib/Fetcher";
 import CatchError from "../../lib/CatchError";
-import FriendSuggestion from "./FriendSuggestion";
-import FriendList from "./FriendList";
+import FriendSuggestion from "./friends/FriendSuggestion";
+import FriendList from "./friends/FriendList";
 import axios from "axios";
 
-import FriendRequests from "./FriendRequests";
+import FriendRequests from "./friends/FriendRequests";
 
 const eightMinutesInMillisecond = 8 * 60 * 1000;
 

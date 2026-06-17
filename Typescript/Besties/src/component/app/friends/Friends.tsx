@@ -1,11 +1,11 @@
-import Card from "../shared/Card";
-import Button from "../shared/Button";
+import Card from "../../shared/Card";
+import Button from "../../shared/Button";
 import useSWR, { mutate } from "swr";
-import Fetcher from "../../lib/Fetcher";
-import Loader from "../shared/Loader";
-import NotFound from "../shared/NotFound";
-import CatchError from "../../lib/CatchError";
-import HttpInterceptor from "../../lib/HttpInterceptor";
+import Fetcher from "../../../lib/Fetcher";
+import Loader from "../../shared/Loader";
+import NotFound from "../../shared/NotFound";
+import CatchError from "../../../lib/CatchError";
+import HttpInterceptor from "../../../lib/HttpInterceptor";
 import { Link } from "react-router-dom";
 
 interface FriendDataInterface {

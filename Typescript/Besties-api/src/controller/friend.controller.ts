@@ -11,7 +11,7 @@ export const addFriend = async(req: SessionInterface, res: Response) => {
 
           req.body.user = req.session?.id
           const friend = await FriendModel.create(req.body)
-          res.json(friend)
+          res.json({message: 'Friend request sent'})
           
      } catch (err) {
           CatchError(err, res, "Failed to send fruiend request")
@@ -62,11 +62,6 @@ export const fetchFriend = async (req: SessionInterface, res: Response) => {
     CatchError(err, res, "Failed to fetch friends")
   }
 }
-
-
-
-
-
 
 export const deleteFriend = async(req: Request, res: Response) => {
      try {
