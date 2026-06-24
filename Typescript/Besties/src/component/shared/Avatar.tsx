@@ -26,7 +26,7 @@ const Avatar: FC<avatarInterface> = ({
       {image && (
         <img
           src={image}
-          className={`${size === "lg" ? "w-12 h-12" : "w-8 h-8 "}
+          className={`${size === "lg" ? "w-12 h-12" : "w-10 h-10 "}
             rounded-full
             border-2
             border-white/60

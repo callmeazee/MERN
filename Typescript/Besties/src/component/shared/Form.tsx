@@ -6,9 +6,15 @@ interface FormInterface {
   children?: ReactNode;
   className: string;
   onValue?: (value: FormDataType) => void;
+  reset?: boolean;
 }
 
-const Form: FC<FormInterface> = ({ children, className, onValue }) => {
+const Form: FC<FormInterface> = ({
+  children,
+  className,
+  onValue,
+  reset = false,
+}) => {
   const handleForm = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -18,9 +24,13 @@ const Form: FC<FormInterface> = ({ children, className, onValue }) => {
     formData.forEach((value, name) => {
       data[name] = value.toString();
     });
-    if (onValue) onValue(data);
     //other way to write this
-    // onValue?.(data)
+    //onValue?.(data);
+    if (onValue) {
+      onValue(data);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      reset && form.reset();
+    }
   };
 
   return (

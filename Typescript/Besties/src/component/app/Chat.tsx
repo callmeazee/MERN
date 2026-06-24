@@ -1,98 +1,252 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FC,
+} from "react";
+import { Link, useParams } from "react-router-dom";
+import Context from "../../Context";
+import Form, { type FormDataType } from "../shared/Form";
+import socket from "../../lib/socket";
+import Input from "../shared/Input";
+import useSWR from "swr";
+import Fetcher from "../../lib/Fetcher";
+import { v4 as uuid } from "uuid";
+import CatchError from "../../lib/CatchError";
+import HttpInterceptor from "../../lib/HttpInterceptor";
+import Card from "../shared/Card";
+import Button from "../shared/Button";
+import moment from "moment";
+
+// FIX: Added 'id', '_id', and 'to' so TypeScript recognizes the filter checks below
+interface MessageReceivedInterface extends AttachmentInterface {
+  online?: any;
+  from: { fullname: string; id?: string; _id?: string; image?: string };
+  to?: string;
+  message: string;
+  time: string;
+  createdAt: string;
+}
+interface AttachmentInterface {
+  file: {
+    path: string;
+    type: string;
+  };
+}
+const AttachmentUi: FC<AttachmentInterface> = ({ file }) => {
+  if (file.type.startsWith("video/"))
+    return <video className="w-full" controls src={file.path}></video>;
+  if (file.type.startsWith("image/"))
+    return <img className="w-full" src={file.path} />;
+  return (
+    <Card>
+      <i className="ri-file-line"></i>
+    </Card>
+  );
+};
 
 const Chat = () => {
-  const [messageText, setMessageText] = useState("");
-  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const chatContainer = useRef<HTMLDivElement | null>(null);
+  const { session } = useContext(Context);
 
-  const [activeUser, setActiveUser] = useState({
-    name: "Azee Khan",
-    initials: "AK",
-    status: "Online",
+  const { id } = useParams();
+
+  const { data } = useSWR(id ? `/chat/${id}` : null, id ? Fetcher : null);
+
+  const [messageText, setMessageText] = useState("");
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(true);
+
+  interface ActiveUserType {
+    name?: string;
+    initials?: string;
+    status?: string;
+    image?: string;
+  }
+
+  const [activeUser, setActiveUser] = useState<ActiveUserType>({
+    name: "",
+    initials: "",
+    status: "Offline",
     image: "",
   });
 
-  const conversations = [
-    {
-      name: "Azee Khan",
-      initials: "AK",
-      latestMsg: "Are we jumping on the call?",
-      time: "12:45 PM",
-      unread: 2,
-      online: true,
-    },
-    {
-      name: "Rahul Kumar",
-      initials: "RK",
-      latestMsg: "Merged the responsive layout layout fix!",
-      time: "11:20 AM",
-      unread: 0,
-      online: true,
-    },
-    {
-      name: "John Adams",
-      initials: "JA",
-      latestMsg: "Let me check the logs real quick.",
-      time: "Yesterday",
-      unread: 0,
-      online: false,
-    },
-  ];
-
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "them",
-      senderName: "Azee Khan",
-      text: "Hey! Did you check out the new chat view layout?",
-      time: "12:30 PM",
-    },
-    {
-      id: 2,
-      sender: "me",
-      senderName: "Rahul Kumar",
-      text: "Yeah, it matches the app theme layout perfectly now. Fluid dimensions are awesome.",
-      time: "12:32 PM",
-    },
-    {
-      id: 3,
-      sender: "them",
-      senderName: "Azee Khan",
-      text: "Awesome! Are we jumping on the call?",
-      time: "12:45 PM",
-    },
-  ]);
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!messageText.trim()) return;
-
-    setMessages([
-      ...messages,
-      {
-        id: messages.length + 1,
-        sender: "me",
-        senderName: "Rahul Kumar",
-        text: messageText,
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
-    setMessageText("");
-  };
-
-  const handleSelectUser = (chat: (typeof conversations)[0]) => {
-    setActiveUser({ ...chat, status: chat.online ? "Online" : "Offline", image: "" });
+  const [chats, setChats] = useState<any>([]);
+  const handleSelectUser = (chat: MessageReceivedInterface) => {
+    setActiveUser({
+      name: chat.from.fullname,
+      initials: chat.from.fullname
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase(),
+      status: chat.online ? "Online" : "Offline",
+      image: "",
+    });
     setIsMobileChatOpen(true);
   };
 
+  const attachmentHandler = (messageReceived: MessageReceivedInterface) => {
+    setChats((prev: any) => [...prev, messageReceived]);
+  };
+  // ==========================================
+  // FIX: STRICT MESSAGE FILTERING & DEPENDENCIES
+  //  ==========================================
+  //listening all socket events
+  useEffect(() => {
+    const currentUserId = session?.id || session?._id;
+
+    const messageHandler = (messageReceived: MessageReceivedInterface) => {
+      // 1. Ignore if the message was sent by us (stops double-rendering our own messages)
+      if (
+        messageReceived.from?.id === currentUserId ||
+        messageReceived.from?._id === currentUserId
+      )
+        return;
+
+      // 2. THE FIX: Ignore if the message is addressed to someone else (Stops broadcast bleed!)
+      if (messageReceived.to && messageReceived.to !== currentUserId) return;
+
+      // 3. Optional: Only show messages in THIS window if they are from the person matching the URL 'id'
+      if (messageReceived.from?.id !== id && messageReceived.from?._id !== id)
+        return;
+
+      setChats((prev: any) => [...prev, messageReceived]);
+    };
+
+    socket.on("message", messageHandler);
+    socket.on("attachment", attachmentHandler);
+
+    return () => {
+      socket.off("message", messageHandler);
+      socket.off("attachment", attachmentHandler);
+    };
+  }, [session, id]); // Crucial: Added dependencies so the listener always knows who is logged in
+
+  //setting old chats
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setChats(data);
+      const other = data.find(
+        (m: any) => m.from?._id !== session?.id && m.from?.fullname,
+      );
+      if (other) {
+        setActiveUser({
+          name: other.from.fullname,
+          initials: other.from.fullname
+            .split(" ")
+            .map((n: string) => n[0])
+            .join("")
+            .toUpperCase(),
+          status: "Online",
+          image: other.from.image || "",
+        });
+      }
+    }
+  }, [data]);
+
+  //setup scrollbar position
+  useEffect(() => {
+    const chatDiv = chatContainer.current;
+    if (chatDiv) {
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+  }, [chats]);
+
+  const sendMessage = (values: FormDataType) => {
+    const text = (values?.message as string) || messageText || "";
+    if (!text.trim()) return;
+
+    const payload = {
+      from: session,
+      to: id,
+      message: values.message,
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }), // Added time generation locally
+    };
+
+    setChats((prev: any) => [...prev, payload]);
+    socket.emit("message", payload);
+  };
+
+  const fileSharing = async (e: ChangeEvent<HTMLInputElement>) => {
+    try {
+      const input = e.target;
+      if (!input.files) return;
+      const file = input.files[0];
+      const url = URL.createObjectURL(file);
+      const ext = file.name.split(".").pop();
+      const filename = `${uuid()}.${ext}`;
+      const path = `chats/${filename}`;
+      const payload = {
+        path,
+        type: file.type,
+        status: "private",
+      };
+      const options = {
+        headers: {
+          "Content-Type": file.type,
+        },
+      };
+
+      const { data } = await HttpInterceptor.post("/storage/upload", payload);
+      await HttpInterceptor.put(data.url, file, options);
+      const remoteMetaData = {
+        file: {
+          path: path,
+          type: file.type,
+        },
+      };
+      const localMetaData = {
+        file: {
+          path: url,
+          type: file.type,
+        },
+      };
+      const attachmentPayload = {
+        from: session,
+        to: id,
+        message: filename,
+      };
+
+      setChats((prev: any) => [
+        ...prev,
+        { ...attachmentPayload, ...localMetaData },
+      ]);
+      socket.emit("attachment", {
+        ...attachmentPayload,
+        ...remoteMetaData,
+      });
+    } catch (err) {
+      CatchError(err);
+    }
+  };
+
+  const download = async (filename: string) => {
+    try {
+      const path = `chats/${filename}`;
+      const { data } = await HttpInterceptor.post("/storage/download", {
+        path,
+      });
+      const a = document.createElement("a");
+      a.href = data.url;
+      a.download = filename;
+      a.click();
+      a.remove();
+    } catch (err) {
+      CatchError(err);
+    }
+  };
+
   return (
-    // FIX: Using w-full max-w-full and min-w-0 ensures flex elements calculate space natively inside the parent layout wrapper
     <div className="flex h-[calc(100vh-240px)] lg:h-[calc(100vh-160px)] w-full max-w-full min-w-0 bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm relative">
       {/* 1. CHAT LIST SIDEBAR */}
-      {/* FIX: Set a strict max-width and min-width range so it stays stable without crushing the chat view */}
       <div
         className={`w-full md:w-64 lg:w-72 flex flex-col bg-slate-50/50 shrink-0 border-r border-gray-100 ${
           isMobileChatOpen ? "hidden md:flex" : "flex"
@@ -109,30 +263,41 @@ const Chat = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
-          {conversations.map((chat, idx) => (
+          {chats.map((chat: MessageReceivedInterface, idx: number) => (
             <div
               key={idx}
               onClick={() => handleSelectUser(chat)}
-              className={`p-3.5 flex items-center justify-between cursor-pointer transition-all ${
-                activeUser.name === chat.name
+              className={`p-3.5 flex items-center justify-between cursor-pointer transition-all capitalize  ${
+                activeUser?.name === chat?.from.fullname
                   ? "bg-indigo-50/60 border-l-4 border-indigo-600 pl-2.5"
                   : "hover:bg-gray-50"
               }`}>
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative shrink-0">
                   <div className="w-10 h-10 rounded-full bg-linear-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                    {chat.initials}
+                    {chat.from.image ? (
+                      <img
+                        className="object-cover rounded-full "
+                        src={chat.from.image}
+                      />
+                    ) : (
+                      chat.from.fullname
+                        .split(" ")
+                        .map((n: string) => n[0])
+                        .join("")
+                        .toUpperCase()
+                    )}
                   </div>
-                  {chat.online && (
+                  {chat && (
                     <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
                   )}
                 </div>
                 <div className="min-w-0">
                   <h4 className="text-sm font-semibold text-slate-700 truncate">
-                    {chat.name}
+                    {chat.from.fullname}
                   </h4>
                   <p className="text-xs text-slate-400 truncate mt-0.5">
-                    {chat.latestMsg}
+                    {chat.message}
                   </p>
                 </div>
               </div>
@@ -141,11 +306,6 @@ const Chat = () => {
                 <span className="text-[10px] font-medium text-slate-400">
                   {chat.time}
                 </span>
-                {chat.unread > 0 && (
-                  <span className="bg-indigo-600 text-white font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
-                    {chat.unread}
-                  </span>
-                )}
               </div>
             </div>
           ))}
@@ -153,7 +313,6 @@ const Chat = () => {
       </div>
 
       {/* 2. CHAT STREAM BOX VIEWER CONTAINER */}
-      {/* FIX: min-w-0 forces the flex container to acknowledge the true boundary instead of overflowing behind the friends panel */}
       <div
         className={`flex-1 min-w-0 flex flex-col bg-white ${
           isMobileChatOpen ? "flex" : "hidden md:flex"
@@ -171,7 +330,7 @@ const Chat = () => {
               {activeUser.initials}
             </div>
             <div className="min-w-0">
-              <h3 className="text-sm font-bold text-slate-800 truncate">
+              <h3 className="text-sm font-bold text-slate-800 truncate capitalize">
                 {activeUser.name}
               </h3>
               <p className="text-[11px] font-medium text-green-500 flex items-center gap-1">
@@ -196,60 +355,91 @@ const Chat = () => {
         </div>
 
         {/* Scrollable Message Box Track */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex flex-col w-full ${msg.sender === "me" ? "items-end" : "items-start"}`}>
-              <span className="text-[11px] font-semibold text-slate-400 mb-1 px-1">
-                {msg.sender === "me" ? "You" : msg.senderName}
-              </span>
+        <div
+          ref={chatContainer}
+          className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30">
+          {chats.map((msg: MessageReceivedInterface, idx: number) => {
+            // FIX: Evaluate 'isMe' directly against the MAPPED msg item, not the undefined array.
+            // MORE ROBUST:
+            const isMe =
+              msg.from?.id === session?.id ||
+              msg.from?._id?.toString() === session?.id;
 
-              {/* Message Bubble */}
+            return (
               <div
-                className={`max-w-[85%] md:max-w-[80%] lg:max-w-[70%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
-                  msg.sender === "me"
-                    ? "bg-indigo-600 text-white rounded-tr-none"
-                    : "bg-white text-slate-700 border border-gray-100 rounded-tl-none"
-                }`}>
-                <p className="leading-relaxed warp-break-words">{msg.text}</p>
+                key={idx}
+                className={`flex flex-col w-full ${isMe ? "items-end" : "items-start"}`}>
+                <span className="text-[11px] font-semibold text-slate-400 mb-1 px-1 capitalize">
+                  {isMe ? "You" : msg.from?.fullname}
+                </span>
+
+                {/* Message Bubble */}
                 <div
-                  className={`text-[10px] mt-1 text-right ${
-                    msg.sender === "me" ? "text-indigo-200" : "text-slate-400"
+                  className={`max-w-[85%] md:max-w-[80%] lg:max-w-[70%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
+                    isMe
+                      ? "bg-indigo-600 text-white rounded-tr-none"
+                      : "bg-white text-slate-700 border border-gray-100 rounded-tl-none"
                   }`}>
-                  {msg.time}
+                  {/* FIX: corrected warp-break-words typo to standard Tailwind break-words */}
+                  {msg.file && <AttachmentUi file={msg.file} />}
+                  <p className="leading-relaxed break-word whitespace-pre-wrap">
+                    {msg.message}
+                  </p>
+                  {msg.file && (
+                    <div>
+                      <Button
+                        onClick={() => download(msg.message)}
+                        icon="download-line"></Button>
+                    </div>
+                  )}
+                  <div
+                    className={`text-[10px] mt-1 text-right ${
+                      isMe ? "text-indigo-200" : "text-slate-400"
+                    }`}>
+                    {moment(msg.createdAt).format("MMM DD, YYYY hh:mm A")}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-    
         {/* Message Input Form */}
-        <form
-          onSubmit={handleSendMessage}
+        <Form
+          onValue={sendMessage}
+          reset
           className="p-3 bg-white border-t border-gray-100 flex items-center gap-3 shrink-0">
           <div className="flex-1 relative flex items-center min-w-0 bg-slate-50 rounded-xl border border-slate-100 focus-within:border-indigo-500/50 focus-within:bg-white transition-all">
-            {/* NEW: ATTACHMENT BUTTON (Placed on the left inside the text input box) */}
-            <button
-              type="button"
+            {/* FIX: Removed the dot and changed to -rotate-45 to stand straight up */}
+            {/* <input
+              type="file"
               className="pl-3 pr-2 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer py-2 flex items-center justify-center"
-              title="Attach file"
-              onClick={() => alert("File attachment click handled!")} // Replace with your file picker logic
-            >
-              <i className="ri-attachment-2 text-xl .rotate-45"></i>
-            </button>
+              aria-label="Attach file"
+            />
 
-            {/* Input Field - Left padding adjusted to accommodate the attachment button */}
+            <i className="ri-attachment-2 text-xl rotate-180"></i> */}
             <input
+              onChange={fileSharing}
+              type="file"
+              id="file-upload"
+              className="hidden" // Use Tailwind's 'hidden' utility to remove it from view
+            />
+
+            {/* Label acts as the clickable trigger for the input */}
+            <label
+              htmlFor="file-upload"
+              className="pl-3 pr-2 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer py-2 flex items-center justify-center">
+              <i className="ri-attachment-2 text-xl rotate-180"></i>
+            </label>
+
+            <Input
               type="text"
-              value={messageText}
+              name="message"
               onChange={(e) => setMessageText(e.target.value)}
               placeholder={`Write a message to ${activeUser.name}...`}
               className="w-full pl-1 pr-12 py-3 bg-transparent text-sm focus:outline-none text-slate-700"
             />
 
-            {/* Contextual Emoji Trigger (Kept on the right inside the input box) */}
             <button
               type="button"
               className="absolute right-3 text-slate-400 hover:text-indigo-500 cursor-pointer p-1">
@@ -257,13 +447,12 @@ const Chat = () => {
             </button>
           </div>
 
-          {/* Submitting Message Button */}
           <button
             type="submit"
             className="bg-indigo-600 text-white h-11 w-11 rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 active:scale-95 cursor-pointer shrink-0">
             <i className="ri-send-plane-2-fill text-lg ml-0.5"></i>
           </button>
-        </form>
+        </Form>
       </div>
     </div>
   );

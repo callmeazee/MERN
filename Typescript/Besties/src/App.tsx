@@ -34,9 +34,9 @@ const App = () => {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="posts" element={<Post />} />
               <Route path="friends" element={<Friends />} />
-              <Route path="video" element={<Video />} />
-              <Route path="audio" element={<Audio />} />
-              <Route path="chat" element={<Chat />} />
+              <Route path="video/:id" element={<Video />} />
+              <Route path="audio/:id" element={<Audio />} />
+              <Route path="chat/:id" element={<Chat />} />
               {/* <Route path="friends" element={<Friends />} /> */}
             </Route>
           </Route>
