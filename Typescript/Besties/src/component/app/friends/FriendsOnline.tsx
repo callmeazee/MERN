@@ -148,7 +148,7 @@
 // export default FriendsOnline;
 
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import socket from "../../../lib/socket";
 import Context from "../../../Context";
 
@@ -162,7 +162,8 @@ interface OnlineUser {
 const FriendsOnline = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [onlineFriends, setOnlineFriends] = useState<OnlineUser[]>([]);
-  const { session } = useContext(Context);
+  const { session, setLiveActiveSession } = useContext(Context);
+  const navigate = useNavigate();
   const onlineHandler = (users: OnlineUser[]) => {
     setOnlineFriends(users);
   };
@@ -172,6 +173,12 @@ const FriendsOnline = () => {
         (item) => item.id !== session.id && item._id !== session.id,
       )
     : onlineFriends;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const generateActiveSession = (url: string, user: any) => {
+    setLiveActiveSession(user);
+    navigate(url);
+  };
 
   useEffect(() => {
     socket.on("online", onlineHandler);
@@ -243,24 +250,30 @@ const FriendsOnline = () => {
 
                   {/* RESOLVED ACCURATE SIZED 3 MEDIA STREAM ICON TRIGGERS */}
                   <div className="flex items-center gap-2 shrink-0">
-                    <Link
-                      to={`/app/chat/${user.id}`}
+                    <button
+                      onClick={() =>
+                        generateActiveSession(`/app/chat/${user.id}`, user)
+                      }
                       className="w-7 h-7 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition-colors"
                       title="Chat">
                       <i className="ri-chat-3-line text-sm"></i>
-                    </Link>
-                    <Link
-                      to="/app/audio"
+                    </button>
+                    <button
+                      onClick={() =>
+                        generateActiveSession(`/app/audio/${user.id}`, user)
+                      }
                       className="w-7 h-7 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center transition-colors"
                       title="Voice Call">
                       <i className="ri-phone-line text-sm"></i>
-                    </Link>
-                    <Link
-                      to={`/app/video/${user.id}`}
+                    </button>
+                    <button
+                      onClick={() =>
+                        generateActiveSession(`/app/video/${user.id}`, user)
+                      }
                       className="w-7 h-7 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition-colors"
                       title="Video Call">
                       <i className="ri-video-on-line text-sm"></i>
-                    </Link>
+                    </button>
                   </div>
                 </div>
               );

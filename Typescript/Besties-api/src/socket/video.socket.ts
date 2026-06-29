@@ -2,15 +2,16 @@ import { Server } from "socket.io"
 
 const VideoSocket = (io: Server) => {
      io.on("connection", (socket) => {
-           console.log(`User connected: ${socket.id}`);
-          // socket.on("join", (userId) => {
-          //   socket.join(userId);
-          //   console.log(`User ${userId} joined room`);
-          // });
+       
+          socket.on("join", (userId) => {
+            socket.join(userId);
+    
+          });
 
 
-       socket.on("offer", ({ offer, to }) => {
-         io.to(to).emit("offer", { offer, from: socket.id });
+       socket.on("offer", ({ offer, to, from, type }) => {
+         from.socketId = socket.id
+         io.to(to).emit("offer", { offer, from: from , type});
        });
 
        socket.on("candidate", ({ candidate, to }) => {

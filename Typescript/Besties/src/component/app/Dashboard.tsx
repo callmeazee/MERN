@@ -4,6 +4,7 @@ import Card from "../shared/Card";
 import Divider from "../shared/Divider";
 import IconButton from "../shared/IconButton";
 
+
 const Dashboard = () => {
   const [newPostText, setNewPostText] = useState("");
 
@@ -78,6 +79,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 w-full min-w-0 animate__animated animate__fadeIn">
+      {/* <Editor/> */}
       {/* 1. COMPOSITION BANNER (CREATE NEW POST COMPONENT) */}
       <Card className="border-indigo-500/10 shadow-sm">
         <form onSubmit={handleCreatePost} className="space-y-4">
@@ -104,12 +106,6 @@ const Dashboard = () => {
                 icon="image-add-line"
                 title="Upload Media File"
                 className="w-9 h-9 rounded-xl bg-blue-500/5 text-blue-500 hover:bg-blue-500 hover:text-white"
-              />
-              <IconButton
-                type="success"
-                icon="code-box-line"
-                title="Insert Snippet code"
-                className="w-9 h-9 rounded-xl bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500 hover:text-white"
               />
             </div>
 

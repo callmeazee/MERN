@@ -23,6 +23,8 @@ import corsConfig from "./utils/corsConfig";
 import ChatSocket from "./socket/chat.socket";
 import ChatRouter from "./routes/chat.routes";
 import VideoSocket from "./socket/video.socket";
+import TwilioRouter from "./routes/twilio.routes";
+import PostRouter from "./routes/post.route";
 
 const app = express();
 const server = createServer(app);
@@ -49,4 +51,6 @@ app.use(cookieParser());
 app.use("/auth", AuthRouter);
 app.use("/storage", AuthMiddleware, StorageRouter);
 app.use("/friend", AuthMiddleware, FriendRouter);
-app.use("/chat",ChatRouter )
+app.use("/post",AuthMiddleware, PostRouter)
+app.use("/chat", ChatRouter)
+app.use("/twilio", TwilioRouter)

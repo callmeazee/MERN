@@ -7,30 +7,25 @@ import socket from "../../lib/socket";
 import { useNavigate, useParams } from "react-router-dom";
 import { notification } from "antd";
 import { Modal } from "antd";
+import HttpInterceptor from "../../lib/HttpInterceptor";
 
-// Add this near the top of your component, after imports
-const config = {
-  iceServers: [
-    {
-      urls: ["stun:stun.l.google.com:19302"],
-    },
-  ],
-};
-interface OnOfferInterface {
+export interface OnOfferInterface {
   offer: RTCSessionDescriptionInit;
-  from: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  from: any;
+  type: 'video' | 'audio' | 'chat'
 }
-interface OnAnswerInterface {
+export interface OnAnswerInterface {
   answer: RTCSessionDescriptionInit;
   from: string;
 }
-interface OnCandidiateInterface {
+export interface OnCandidiateInterface {
   candidate: RTCIceCandidateInit;
   from: string;
 }
 
-type CallType = "pending" | "calling" | "incoming" | "talking" | "end";
-type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3";
+export type CallType = "pending" | "calling" | "incoming" | "talking" | "end";
+export type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3";
 
 const getCallDuration = (seconds: number): string => {
   const hrs = Math.floor(seconds / 3600);
@@ -48,7 +43,7 @@ const getCallDuration = (seconds: number): string => {
 
 const Video = () => {
   const navigate = useNavigate();
-  const { session } = useContext(Context);
+  const { session, liveActiveSession, sdp, setSdp } = useContext(Context);
   const { id } = useParams();
   const [notify, notifyUi] = notification.useNotification();
 
@@ -97,9 +92,34 @@ const Video = () => {
         const stream = await navigator.mediaDevices.getDisplayMedia({
           video: true,
         });
+        const screenShareTrack = stream.getVideoTracks()[0];
+        const senderVideoTrack = rtcRef.current
+          ?.getSenders()
+          .find((s) => s.track?.kind === "video");
+        if (screenShareTrack && senderVideoTrack) {
+          await senderVideoTrack.replaceTrack(screenShareTrack);
+        }
         localVideo.srcObject = stream;
         localStreamRef.current = stream;
         setIsScreenSharing(true);
+
+        //detect screen sharing off
+        screenShareTrack.onended = async () => {
+          setIsScreenSharing(false);
+          const videoCamStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          const videoTrack = videoCamStream.getVideoTracks()[0];
+          const senderTrack = rtcRef.current
+            ?.getSenders()
+            .find((s) => s.track?.kind === "video");
+          if (videoTrack && senderTrack) {
+            await senderTrack.replaceTrack(videoTrack);
+          }
+          localVideo.srcObject = videoCamStream;
+          localStreamRef.current = videoCamStream;
+          // setIsScreenSharing(true);
+        };
       } else {
         const localStream = localStreamRef.current;
         if (!localStream) return;
@@ -221,10 +241,11 @@ const Video = () => {
   }; */
 
   //new with fixes
-  const webRtcConnection = () => {
-    if (rtcRef.current) return rtcRef.current;
+  const webRtcConnection = async () => {
+    // if (rtcRef.current) return rtcRef.current;
+    const { data } = await HttpInterceptor.get("/twilio/turn-server");
 
-    rtcRef.current = new RTCPeerConnection(config);
+    rtcRef.current = new RTCPeerConnection({ iceServers: data });
 
     const localStream = localStreamRef.current;
     if (localStream) {
@@ -284,13 +305,16 @@ const Video = () => {
   //new
   const acceptCall = async (payload: OnOfferInterface) => {
     try {
-      remoteSocketIdRef.current = payload.from; // ← Critical fix
+      setSdp(null);
+      remoteSocketIdRef.current = payload.from.socketId; // ← Critical fix
 
       if (!localStreamRef.current) {
         await toggleVideo(); // ensure local media before answer
       }
 
-      const rtc = webRtcConnection();
+      const rtc = await webRtcConnection();
+      if (!rtcRef.current) return;
+
       const offer = new RTCSessionDescription(payload.offer);
       await rtc.setRemoteDescription(offer);
 
@@ -300,7 +324,7 @@ const Video = () => {
       setStatus("talking");
       stopAudio();
 
-      socket.emit("answer", { answer, to: payload.from }); // use payload.from
+      socket.emit("answer", { answer, to: payload.from.socketId }); // use payload.from
     } catch (err) {
       CatchError(err);
     }
@@ -311,14 +335,18 @@ const Video = () => {
       if (!isVideoSharing && !isScreenSharing)
         return toast("Start your video fiirst", { position: "top-center" });
       // await toggleVideo();
-      webRtcConnection();
+      await webRtcConnection();
       if (!rtcRef.current) return;
       const offer = await rtcRef.current.createOffer();
       await rtcRef.current.setLocalDescription(offer);
       setStatus("calling");
       playAudio("/sound/ring.mp3", true);
       notify.open({
-        title: "Divya Kumari",
+        title: (
+          <h1 className="capitalize font-medium">
+            {liveActiveSession.fullname}
+          </h1>
+        ),
         description: "Calling....",
         duration: 30,
         placement: "bottomRight",
@@ -332,7 +360,7 @@ const Video = () => {
           </button>,
         ],
       });
-      socket.emit("offer", { offer: offer, to: id });
+      socket.emit("offer", { offer: offer, to: id, from: session, type: 'video'});
     } catch (err) {
       CatchError(err);
     }
@@ -355,6 +383,8 @@ const Video = () => {
     playAudio("/sound/reject.mp3");
     notify.destroy();
     socket.emit("end", { to: id });
+    endStreaming();
+    setOpen(true);
   };
   //this is for who end or who rejected the call
   //to end call on remote computer
@@ -362,6 +392,8 @@ const Video = () => {
     setStatus("end");
     notify.destroy();
     playAudio("/sound/reject.mp3");
+    endStreaming();
+    setOpen(true);
   };
 
   //EventListeners
@@ -370,7 +402,9 @@ const Video = () => {
     setStatus("incoming");
 
     notify.open({
-      title: "Azee Khan",
+      title: (
+        <h1 className="capitalize font-medium">{payload.from.fullname}</h1>
+      ),
       description: "Incoming call...",
       duration: 30,
       placement: "bottomRight",
@@ -436,58 +470,39 @@ const Video = () => {
     };
   }, []);
 
-  //control sound
-  // useEffect(() => {
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   let interval: any;
-  //   if (status === "pending") return;
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let interval: any;
+    if (status === "talking") {
+      interval = setInterval(() => {
+        setTimer((prev) => prev + 1);
+      }, 1000);
+    }
 
-  //   if (!audio.current) {
-  //     clearInterval(interval);
-  //     audio.current = new Audio();
-  //   }
-  //   // if (status === "calling") {
-  //   //   audio.current.pause();
+    return () => {
+      clearInterval(interval);
+    };
+  }, [status]);
 
-  //   //   audio.current.currentTime = 0;
-  //   // }
-  //   if (status === "calling" || status === "incoming") {
-  //     clearInterval(interval);
-  //     audio.current.pause();
-  //     audio.current.src = "/sound/ring.mp3";
-  //     audio.current.currentTime = 0;
-  //     audio.current.load();
-  //     audio.current.play();
-  //   }
-  //   if (status === "talking") {
-  //     clearInterval(interval);
-  //     clearInterval(interval);
-  //     audio.current.pause();
-  //     audio.current.currentTime = 0;
-  //     // eslint-disable-next-line no-useless-assignment
-  //     interval = setInterval(() => {
-  //       setTimer((prev) => prev + 1);
-  //     }, 1000);
-  //   }
-  //   if (status === "end") {
-  //     clearInterval(interval);
-  //     audio.current.pause();
-  //     audio.current.src = "/sound/reject.mp3";
-  //     audio.current.currentTime = 0;
-  //     audio.current.load();
-  //     audio.current.play();
-  //     notify.destroy();
-  //   }
+  useEffect(() => {
+    if (!liveActiveSession) {
+      navigate("/app");
+    }
+  }, [liveActiveSession, navigate]);
 
-  //   return () => {
-  //     if (audio.current) {
-  //       audio.current.pause();
-  //       audio.current.currentTime = 0;
-  //       audio.current = null;
-  //     }
-  //     clearInterval(interval);
-  //   };
-  // }, [status]);
+  //detect coming offer
+  useEffect(() => {
+    if (sdp) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      onOffer(sdp);
+    }
+
+    // return () => {};
+  }, [sdp]);
+
+  // if (!liveActiveSession) {
+  //   return navigate("/app")
+  // }
 
   return (
     <div className="space-y-4 p-3">
@@ -502,7 +517,7 @@ const Video = () => {
           playsInline></video>
 
         <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg text-white bg-slate-900/70 text-xs font-semibold">
-          Rahul Kumar (remote)
+        {liveActiveSession.fullname}
         </div>
 
         <button
@@ -520,6 +535,7 @@ const Video = () => {
           className="bg-slate-900 aspect-video rounded-xl relative overflow-hidden border border-slate-800">
           <video
             ref={localVideoRef}
+            muted
             className="w-full h-full object-cover absolute top-0 left-0"
             autoPlay
             playsInline></video>
@@ -595,7 +611,7 @@ const Video = () => {
               type="danger"
               icon="close-circle-line"
               className="w-full sm:w-auto text-xs py-2 px-4 rounded-xl font-bold justify-center shadow-none h-10"
-              onClick={startCall}>
+              onClick={endCallFromLocal}>
               End
             </Button>
           )}
@@ -605,11 +621,13 @@ const Video = () => {
         open={open}
         footer={null}
         centered
-        maskClosable
+        mask={{ closable: true }}
         onCancel={redirectOnCallEnd}>
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-semibold">Call Ended</h1>
-          <Button type="danger">Thank you !</Button>
+          <Button type="danger" onClick={redirectOnCallEnd}>
+            Thank you !
+          </Button>
         </div>
       </Modal>
       {notifyUi}
